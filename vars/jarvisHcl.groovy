@@ -5,7 +5,7 @@ def call1(resource, type) {
         println resource
         println type
         println name
-        println args1[0]
+        println args[0]
     }
     return fixture
 }
