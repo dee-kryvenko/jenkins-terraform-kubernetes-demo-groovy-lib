@@ -1,5 +1,4 @@
 def get(String resource, type) {
-    println "Patching for HCL, part 2"
     type = type[0] as String
     def hcl = new Object()
     hcl.metaClass.methodMissing { String name, args ->
