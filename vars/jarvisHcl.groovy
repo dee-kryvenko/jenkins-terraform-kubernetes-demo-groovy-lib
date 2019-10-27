@@ -3,9 +3,7 @@ def get(String resource, type) {
     def hcl = new Object()
     hcl.metaClass.methodMissing { String name, args ->
         Closure body = args[0]
-        println resource
-        println type
-        println name
+        println "${resource}.${type}.${name}"
         println body
     }
     return hcl
