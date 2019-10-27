@@ -1,14 +1,11 @@
 def get(context, String resource, type) {
-    if (type.size() != 1 || type[0] ! instanceof String) {
-        println "11111"
-        println type.size() != 1 || type[0] instanceof String
+    if (type.size() != 1 || !(type[0] instanceof String)) {
         throw new MissingMethodException(resource, context.class, type)
     }
     type = type[0] as String
     def hcl = new Object()
     hcl.metaClass.methodMissing { String name, args ->
-        if (args.size() != 1 || args[0] ! instanceof Closure) {
-            println "2222222"
+        if (args.size() != 1 || !(args[0] instanceof Closure)) {
             throw new MissingMethodException(name, context.class, args)
         }
 
