@@ -4,6 +4,9 @@ def get(context, String resource, type) {
     hcl.metaClass.methodMissing { String name, args ->
         Closure body = args[0]
         println context.class
+        context.metaClass.methods.name.unique().each { 
+            println it
+        }
         println "${resource}.${type}.${name}"
         println body
     }
