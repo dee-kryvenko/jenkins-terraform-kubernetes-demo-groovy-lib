@@ -1,3 +1,3 @@
-def call(String type, args) {
+def call(type, args) {
     echo type
 }
