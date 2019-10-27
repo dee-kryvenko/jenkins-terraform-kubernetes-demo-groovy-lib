@@ -1,5 +1,5 @@
 def call1(type, args) {
-    this.metaClass.methodMissing { name, args1 ->
+    this.methodMissing { name, args1 ->
         println name
         println args1[0]
     }
