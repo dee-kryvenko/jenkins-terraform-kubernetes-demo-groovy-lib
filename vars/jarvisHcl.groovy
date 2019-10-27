@@ -6,7 +6,7 @@ def get(context, String resource, type) {
     def hcl = new Object()
     hcl.metaClass.methodMissing { String name, args ->
         if (args.size() != 1 || !(args[0] instanceof Closure)) {
-        context.originalMethodMissing(name, args)
+            context.originalMethodMissing(name, args)
         }
 
         Closure body = args[0]
