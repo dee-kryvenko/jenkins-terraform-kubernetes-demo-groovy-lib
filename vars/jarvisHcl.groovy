@@ -1,6 +1,7 @@
 def get(context, String resource, type) {
     if (type.size() != 1 || type[0] instanceof String) {
         println "11111"
+        println type.size()
         throw new MissingMethodException(resource, context.class, type)
     }
     type = type[0] as String
