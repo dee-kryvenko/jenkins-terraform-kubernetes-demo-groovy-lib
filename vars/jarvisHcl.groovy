@@ -1,3 +1,3 @@
 def call(type, args) {
-    echo type
+    println type
 }
