@@ -16,9 +16,9 @@ def get(context, String resource, type) {
     return hcl
 }
 
-def done() {
+def done(steps) {
     println "qwe"
-    evaluate """
+    steps.evaluate """
 pipeline {
   agent {
     kubernetes {
