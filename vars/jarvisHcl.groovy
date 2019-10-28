@@ -2,7 +2,7 @@ import org.codehaus.groovy.runtime.InvokerHelper
 
 def get(context, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
-        return InvokerHelper.invokeMethod(context, resource, type)
+        return context."${resource}"(type)
     }
     type = type[0] as String
     def hcl = new Object()
