@@ -1,5 +1,6 @@
 def get(context, originalMethodMissing, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
+        println originalMethodMissing.class
         // context.metaClass.methodMissing = originalMethodMissing
         // context.methodMissing(resource, type)
         originalMethodMissing.invokeMethod(context, resource, type)
