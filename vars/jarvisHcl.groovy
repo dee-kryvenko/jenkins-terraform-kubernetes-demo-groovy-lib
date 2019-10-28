@@ -1,9 +1,9 @@
 def get(context, originalMethodMissing, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
         println originalMethodMissing.class
-        // context.metaClass.methodMissing = originalMethodMissing
+        context.metaClass.methodMissing = originalMethodMissing
         // context.methodMissing(resource, type)
-        originalMethodMissing.doCall(resource, type)
+        originalMethodMissing.call(resource, type)
         return context
     }
     type = type[0] as String
