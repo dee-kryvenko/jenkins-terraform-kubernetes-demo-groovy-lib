@@ -16,7 +16,7 @@ def get(context, String resource, type) {
     return hcl
 }
 
-def do() {
+def run() {
     evaluate """
 pipeline {
   agent {
