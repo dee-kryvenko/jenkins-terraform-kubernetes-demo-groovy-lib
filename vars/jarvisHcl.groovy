@@ -3,6 +3,7 @@ def get(context, originalMethodMissing, String resource, type) {
         // context.metaClass.methodMissing = originalMethodMissing
         // context.methodMissing(resource, type)
         originalMethodMissing.invokeMethod(resource, type)
+        return context
     }
     type = type[0] as String
     def hcl = new Object()
