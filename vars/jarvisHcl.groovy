@@ -1,6 +1,6 @@
 import org.codehaus.groovy.runtime.InvokerHelper
 
-def get(context, originalMethodMissing, String resource, type) {
+def get(context, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
         return InvokerHelper.invokeMethod(context, resource, type)
     }
