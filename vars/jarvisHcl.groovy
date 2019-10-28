@@ -1,5 +1,3 @@
-import org.jenkinsci.plugins.workflow.cps
-
 def get(context, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
         return context.steps."${resource}"(type)
