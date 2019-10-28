@@ -1,9 +1,9 @@
 def get(context, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
         println context.metaClass.originalMethodMissing.class
-        context.metaClass.methodMissing = context.metaClass.&originalMethodMissing
-        return context.methodMissing(resource, type)
-        // return originalMethodMissing.call(resource, type)
+        // context.metaClass.methodMissing = context.metaClass.&originalMethodMissing
+        // return context.methodMissing(resource, type)
+        return context.originalMethodMissing(resource, type)
     }
     type = type[0] as String
     def hcl = new Object()
