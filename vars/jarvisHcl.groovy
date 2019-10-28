@@ -1,10 +1,8 @@
+import org.codehaus.groovy.runtime.InvokerHelper
+
 def get(context, originalMethodMissing, String resource, type) {
     if (type.size() != 1 || !(type[0] instanceof String)) {
-        println originalMethodMissing.class
-        // context.metaClass.methodMissing = context.metaClass.&originalMethodMissing
-        // return context.methodMissing(resource, type)
-        return originalMethodMissing.invoke(resource, type)
-        // return context.originalMethodMissing(resource, type)
+        return InvokerHelper.invokeMethod(context, resource, type)
     }
     type = type[0] as String
     def hcl = new Object()
