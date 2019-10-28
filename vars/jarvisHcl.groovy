@@ -17,7 +17,7 @@ def get(context, String resource, type) {
 }
 
 def done(steps) {
-    steps.evaluate """
+    evaluate """
 pipeline {
   agent {
     kubernetes {
