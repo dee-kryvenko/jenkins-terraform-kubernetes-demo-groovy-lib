@@ -3,7 +3,7 @@ def get(context, originalMethodMissing, String resource, type) {
         println originalMethodMissing.class
         // context.metaClass.methodMissing = originalMethodMissing
         // context.methodMissing(resource, type)
-        originalMethodMissing.invokeMethod(context, resource, type)
+        originalMethodMissing.call([resource, type])
         return context
     }
     type = type[0] as String
