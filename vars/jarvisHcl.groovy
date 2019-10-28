@@ -17,6 +17,7 @@ def get(context, String resource, type) {
 }
 
 def done() {
+    println "qwe"
     evaluate """
 pipeline {
   agent {
