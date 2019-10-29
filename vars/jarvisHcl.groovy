@@ -1,7 +1,7 @@
-import jarvis.jenkins.lib.Config
+import jarvis.jenkins.lib.Hcl
 
 def get(context, String resource, type) {
-    Config.init(this)
+    Hcl.init(this)
 
     if (type.size() != 1 || !(type[0] instanceof String)) {
         return context.steps.invokeMethod(resource, type)
@@ -17,12 +17,12 @@ def get(context, String resource, type) {
 
         Closure body = args[0]
 
-        Config.it().add(resource, type, name, body)
+        Hcl.it().add(resource, type, name, body)
     }
 
     return hcl
 }
 
 def done(steps) {
-    Config.it().done()
+    Hcl.it().done()
 }
