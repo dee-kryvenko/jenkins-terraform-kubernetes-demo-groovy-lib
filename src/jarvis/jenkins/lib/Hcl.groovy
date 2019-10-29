@@ -48,9 +48,11 @@ class Hcl implements Serializable {
         resources.put(name, body)
     }
 
-    private static Class<AbstractConfig> getConfigClass(String resource, String type) {
-        Reflections ref = new Reflections(new TypeAnnotationsScanner())
+    private Class<AbstractConfig> getConfigClass(String resource, String type) {
+        Reflections ref = new Reflections(new TypeAnnotationsScanner(), new SubTypesScanner())
+        context.steps.echo "HIIIIIII"
         ref.getTypesAnnotatedWith(Config.class).find() {
+            context.steps.echo it.toString()
             Config config = it.getAnnotation(Config.class)
             config.resource().equals(resource) && config.type().equals(type)
         } as Class<AbstractConfig>
