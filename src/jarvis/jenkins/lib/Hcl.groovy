@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import jarvis.jenkins.lib.config.AbstractConfig
 import jarvis.jenkins.lib.config.Config
 import org.reflections.Reflections
+import org.reflections.scanners.TypeAnnotationsScanner
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -47,8 +48,8 @@ class Hcl implements Serializable {
     }
 
     private static Class<AbstractConfig> getConfigClass(String resource, String type) {
-        Reflections ref = new Reflections()
-        ref.getSubTypesOf(AbstractConfig.class).find() {
+        Reflections ref = new Reflections(Hcl.class.getPackage().getName(), new TypeAnnotationsScanner())
+        ref.getTypesAnnotatedWith(Config).find() {
             Config config = it.getAnnotation(Config.class)
             config != null && config.resource().equals(resource) && config.type().equals(type)
         } as Class<AbstractConfig>
