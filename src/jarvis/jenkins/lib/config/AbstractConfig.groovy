@@ -1,4 +1,4 @@
 package jarvis.jenkins.lib.config
 
-class AbstractConfig implements Serializable {
+abstract class AbstractConfig implements Serializable {
 }

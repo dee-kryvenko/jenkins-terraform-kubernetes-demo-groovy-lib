@@ -6,6 +6,8 @@ import jarvis.jenkins.lib.config.Config
 import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 import org.reflections.scanners.TypeAnnotationsScanner
+import org.reflections.util.ClasspathHelper
+import org.reflections.util.ConfigurationBuilder
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -49,7 +51,9 @@ class Hcl implements Serializable {
     }
 
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
-        Reflections ref = new Reflections(AbstractConfig.class.getPackage().getName(), new SubTypesScanner())
+        Reflections ref = new Reflections(new ConfigurationBuilder()
+                .setScanners(new SubTypesScanner(true), new TypeAnnotationsScanner())
+                .setUrls(ClasspathHelper.forPackage(AbstractConfig.class.getPackage().getName())))
         context.steps.echo "HIIIIIII"
         ref.getSubTypesOf(AbstractConfig.class).find() {
             context.steps.echo it.toString()
