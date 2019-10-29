@@ -1,13 +1,10 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
+import io.github.classgraph.AnnotationParameterValueList
+import io.github.classgraph.ClassGraph
 import jarvis.jenkins.lib.config.AbstractConfig
 import jarvis.jenkins.lib.config.Config
-import org.reflections.Reflections
-import org.reflections.scanners.SubTypesScanner
-import org.reflections.scanners.TypeAnnotationsScanner
-import org.reflections.util.ClasspathHelper
-import org.reflections.util.ConfigurationBuilder
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -51,13 +48,14 @@ class Hcl implements Serializable {
     }
 
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
-        Reflections ref = new Reflections()
-        context.steps.echo "HIIIIIII"
-        ref.getSubTypesOf(AbstractConfig.class).find() {
-            context.steps.echo it.toString()
-            Config config = it.getAnnotation(Config.class)
-            config != null && config.resource().equals(resource) && config.type().equals(type)
-        } as Class<AbstractConfig>
+        new ClassGraph().enableAllInfo().whitelistPackages(Config.class.getPackage().getName()).scan().withCloseable { scanResult ->
+            scanResult.getClassesWithAnnotation(Config.class.getName()).find() {
+                context.steps.echo it.toString()
+                AnnotationParameterValueList config = it.getAnnotationInfo(Config.class.getName()).getParameterValues()
+                context.steps.echo config.toString()
+                config.get("resource").equals(resource) && config.get("type").equals(type)
+            } as Class<AbstractConfig>
+        }
     }
 
     void done() {

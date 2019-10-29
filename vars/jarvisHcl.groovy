@@ -1,4 +1,4 @@
-@Grab(group='org.reflections', module='reflections', version='0.9.11')
+@Grab(group='io.github.classgraph', module='classgraph', version='4.8.52')
 
 import jarvis.jenkins.lib.Hcl
 
