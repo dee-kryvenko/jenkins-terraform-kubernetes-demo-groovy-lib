@@ -1,3 +1,5 @@
+@Grab(group='org.reflections', module='reflections', version='0.9.11')
+
 import jarvis.jenkins.lib.Hcl
 
 def get(context, String resource, type) {

@@ -31,6 +31,13 @@ it is NOT used for actually building anything
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
         </dependency>
+        <!-- These dependencies needs to be defined with @Grab, but for tests and IDE we also define them here -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+        <!-- This used for tests -->
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-cps-global-lib</artifactId>

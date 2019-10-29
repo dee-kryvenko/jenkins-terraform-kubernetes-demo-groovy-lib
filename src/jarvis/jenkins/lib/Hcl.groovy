@@ -1,6 +1,9 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
+import jarvis.jenkins.lib.config.AbstractConfig
+import jarvis.jenkins.lib.config.Config
+import org.reflections.Reflections
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -43,13 +46,26 @@ class Hcl implements Serializable {
         resources.put(name, body)
     }
 
+    private static Class<AbstractConfig> getConfigClass(String resource, String type) {
+        Reflections ref = new Reflections('jarvis.jenkins.lib')
+        ref.getTypesAnnotatedWith(Config.class).find() {
+            Config config = it.getAnnotation(Config.class)
+            config.resource().equals(resource) && config.type().equals(type)
+        } as Class<AbstractConfig>
+    }
+
     void done() {
-        List result = []
+        List<AbstractConfig> result = []
 
         hcl.each { resource, types ->
             types.each { type, names ->
+                Class<AbstractConfig> configClass = getConfigClass(resource, type)
                 names.each { name, body ->
-                    result << "${resource}.${type}.${name}"
+                    AbstractConfig config = configClass.newInstance()
+                    body.setDelegate(config)
+                    body.setResolveStrategy(Closure.DELEGATE_FIRST)
+                    body.call()
+                    result << config
                 }
             }
         }
@@ -80,7 +96,7 @@ spec:
       steps {
         container('maven') {
           sh 'mvn -version'
-          echo "${result.join(", ")}"
+          echo "${result.collect() { it.class.getName() }.join(", ")}"
         }
       }
     }
