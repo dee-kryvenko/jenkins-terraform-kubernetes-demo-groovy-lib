@@ -33,7 +33,7 @@ class Hcl implements Serializable {
 
         Map<String, Map<String, Closure>> resourceTypes = hcl[resource]
         if (!resourceTypes.containsKey(type)) {
-            hcl.put(type, [:])
+            resourceTypes.put(type, [:])
         }
 
         Map<String, Closure> resources = resourceTypes[type]
