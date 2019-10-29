@@ -27,7 +27,7 @@ class Config implements Serializable {
     }
 
     void add(String resource, String type, String name, Closure body) {
-        hcl.put(String.join(".", [resource, type, name], body))
+        hcl.put(String.join(".", [resource, type, name]), body)
     }
 
     @Override
