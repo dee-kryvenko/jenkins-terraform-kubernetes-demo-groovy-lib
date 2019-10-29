@@ -49,6 +49,7 @@ class Hcl implements Serializable {
     private static Class<AbstractConfig> getConfigClass(String resource, String type) {
         Reflections ref = new Reflections('jarvis.jenkins.lib')
         ref.getTypesAnnotatedWith(Config.class).find() {
+            context.steps.echo it.toString()
             Config config = it.getAnnotation(Config.class)
             config.resource().equals(resource) && config.type().equals(type)
         } as Class<AbstractConfig>
