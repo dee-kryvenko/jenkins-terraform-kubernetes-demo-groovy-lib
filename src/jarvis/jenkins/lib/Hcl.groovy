@@ -5,6 +5,7 @@ import io.github.classgraph.AnnotationParameterValueList
 import io.github.classgraph.ClassGraph
 import jarvis.jenkins.lib.config.AbstractConfig
 import jarvis.jenkins.lib.config.Config
+import jarvis.jenkins.lib.config.artifact.DockerConfig
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -52,7 +53,8 @@ class Hcl implements Serializable {
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
         new ClassGraph().enableAllInfo().scan().withCloseable { scanResult ->
             context.steps.echo Config.class.getName()
-            context.steps.echo scanResult.getClassesWithAnnotation(Config.class.getName()).size().toString()
+            context.steps.echo scanResult.getClassInfo(DockerConfig.class.getName()).getAnnotationInfo(Config.class.getName()).toString()
+            context.steps.echo scanResult.getClassesWithAnnotation().getClassesWithAnnotation(Config.class.getName()).size().toString()
             scanResult.getClassesWithAnnotation(Config.class.getName()).find() {
                 context.steps.echo it.toString()
                 AnnotationParameterValueList config = it.getAnnotationInfo(Config.class.getName()).getParameterValues()
