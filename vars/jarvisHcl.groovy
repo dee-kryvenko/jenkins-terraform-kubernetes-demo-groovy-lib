@@ -24,38 +24,5 @@ def get(context, String resource, type) {
 }
 
 def done(steps) {
-    def result = Config.it().toString()
-    evaluate """
-pipeline {
-  agent {
-    kubernetes {
-      defaultContainer 'jnlp'
-      yaml '''
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    some-label: some-label-value
-spec:
-  containers:
-  - name: maven
-    image: maven:alpine
-    command:
-    - cat
-    tty: true
-'''
-    }
-  }
-  stages {
-    stage('Run maven') {
-      steps {
-        container('maven') {
-          sh 'mvn -version'
-          echo "${result}"
-        }
-      }
-    }
-  }
-}
-"""
+    Config.it().done()
 }
