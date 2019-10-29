@@ -51,9 +51,7 @@ class Hcl implements Serializable {
     }
 
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
-        Reflections ref = new Reflections(new ConfigurationBuilder()
-                .setScanners(new SubTypesScanner(true), new TypeAnnotationsScanner())
-                .setUrls(ClasspathHelper.forPackage(AbstractConfig.class.getPackage().getName())))
+        Reflections ref = new Reflections()
         context.steps.echo "HIIIIIII"
         ref.getSubTypesOf(AbstractConfig.class).find() {
             context.steps.echo it.toString()
