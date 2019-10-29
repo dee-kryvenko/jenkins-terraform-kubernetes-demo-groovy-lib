@@ -50,7 +50,7 @@ class Hcl implements Serializable {
 
     @NonCPS
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
-        new ClassGraph().enableAllInfo().whitelistPackages(Config.class.getPackage().getName()).scan().withCloseable { scanResult ->
+        new ClassGraph().enableAllInfo().scan().withCloseable { scanResult ->
             scanResult.getClassesWithAnnotation(Config.class.getName()).find() {
                 context.steps.echo it.toString()
                 AnnotationParameterValueList config = it.getAnnotationInfo(Config.class.getName()).getParameterValues()
