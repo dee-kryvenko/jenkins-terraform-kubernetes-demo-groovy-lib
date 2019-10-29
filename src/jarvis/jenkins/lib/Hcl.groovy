@@ -30,6 +30,7 @@ class Hcl implements Serializable {
         this.context = context
     }
 
+    @NonCPS
     void add(String resource, String type, String name, Closure body) {
         if (!hcl.containsKey(resource)) {
             hcl.put(resource, [:])
@@ -47,6 +48,7 @@ class Hcl implements Serializable {
         resources.put(name, body)
     }
 
+    @NonCPS
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
         new ClassGraph().enableAllInfo().whitelistPackages(Config.class.getPackage().getName()).scan().withCloseable { scanResult ->
             scanResult.getClassesWithAnnotation(Config.class.getName()).find() {
@@ -58,6 +60,7 @@ class Hcl implements Serializable {
         }
     }
 
+    @NonCPS
     void done() {
         List<AbstractConfig> result = []
 
