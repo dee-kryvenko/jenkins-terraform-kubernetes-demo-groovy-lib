@@ -82,11 +82,11 @@ spec:
     image: "jenkins/jnlp-slave:3.35-5-alpine"
     tty: true
   - name: dind
-    image: "docker:${dockerConfig.getDockerVersion()}-ce-dind"
+    image: "docker:${dockerConfig.getDockerVersion()}-dind"
     securityContext:
         privileged: true
   - name: docker
-    image: "docker:${dockerConfig.getDockerVersion()}-ce"
+    image: "docker:${dockerConfig.getDockerVersion()}"
     env:
         - name: DOCKER_HOST
           value: "tcp://localhost:2375"
