@@ -1,4 +1,4 @@
-package jarvis.jenkins.lib.config.artifact
+package jarvis.jenkins.lib.config.artifact.docker
 
 import jarvis.jenkins.lib.config.AbstractConfig
 
