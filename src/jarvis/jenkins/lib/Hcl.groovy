@@ -45,6 +45,7 @@ class Hcl implements Serializable {
         AbstractConfig config = findClass('config', resource, type)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
+        body.setProperty('foo_bar', null)
         hcl.each { key, value ->
             body.setProperty(key, value)
         }
