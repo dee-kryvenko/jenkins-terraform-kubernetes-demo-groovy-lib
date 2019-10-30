@@ -51,7 +51,7 @@ class Hcl implements Serializable {
             body.setDelegate(config)
             body.setResolveStrategy(Closure.DELEGATE_FIRST)
             body.call()
-            result.subMap().put(address, config)
+            result.put(address, config)
         }
 
         result.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, config ->
