@@ -45,9 +45,9 @@ class Hcl implements Serializable {
         AbstractConfig config = findClass('config', resource, type)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
-//        hcl.each { key, value ->
-//            body.setProperty(key, value)
-//        }
+        hcl.each { key, value ->
+            body.setProperty(key, value)
+        }
         body.call()
 
         resources.put(name, config)
@@ -55,7 +55,7 @@ class Hcl implements Serializable {
 
     @NonCPS
     private static <T extends Object> T findClass(String kind, String resource, String type, Object... args) {
-        String[] split = type.split('-')
+        String[] split = type.split('_')
         String clazz = "${Hcl.class.getPackage().getName()}.${kind}.${resource}.${split.join('.')}"
         clazz = "${clazz}.${split.collect() { it.capitalize() }.join()}${resource.capitalize()}${kind.capitalize()}"
         return (T) Class.forName(clazz).newInstance(args as Object[])
