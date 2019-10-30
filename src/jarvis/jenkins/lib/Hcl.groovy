@@ -20,27 +20,18 @@ class Hcl implements Serializable {
     }
 
     private final def context
-    private final Map<String, Map<String, Map<String, Closure>>> hcl = [:]
+    private final NavigableMap<String, Closure> hcl = [:]
 
     Hcl(context) {
         this.context = context
     }
 
     void add(String resource, String type, String name, Closure body) {
-        if (!hcl.containsKey(resource)) {
-            hcl.put(resource, [:])
+        String key = [resource, type, name].join(".")
+        if (hcl.containsKey(key)) {
+            throw new RuntimeException("${key} already defined")
         }
-
-        Map<String, Map<String, Closure>> resourceTypes = hcl[resource]
-        if (!resourceTypes.containsKey(type)) {
-            resourceTypes.put(type, [:])
-        }
-
-        Map<String, Closure> resources = resourceTypes[type]
-        if (resources.containsKey(name)) {
-            throw new RuntimeException("${resource}.${type}.${name} already defined")
-        }
-        resources.put(name, body)
+        hcl.put(key, body)
     }
 
     @NonCPS
@@ -52,20 +43,20 @@ class Hcl implements Serializable {
     }
 
     void done() {
-        Map<String, AbstractConfig> result = [:]
+        NavigableMap<String, AbstractConfig> result = [:]
 
-        hcl.each { resource, types ->
-            types.each { type, names ->
-                names.each { name, body ->
-                    AbstractConfig config = findClass('config', resource, type)
-                    body.setDelegate(config)
-                    body.setResolveStrategy(Closure.DELEGATE_FIRST)
-                    body.call()
-                    result.put([resource, type, name].join("."), config)
-                }
-            }
+        hcl.each { address, body ->
+            def (resource, type, name) = address.split(".")
+            AbstractConfig config = findClass('config', resource, type)
+            body.setDelegate(config)
+            body.setResolveStrategy(Closure.DELEGATE_FIRST)
+            body.call()
+            result.subMap().put(address, config)
         }
 
+        result.subMap('artifact', 'artifact' + Character.MAX_VALUE).each { address, config ->
+            context.steps.echo address
+        }
         DockerConfig dockerConfig = result["artifact.docker.it"]
 
         context.evaluate """
