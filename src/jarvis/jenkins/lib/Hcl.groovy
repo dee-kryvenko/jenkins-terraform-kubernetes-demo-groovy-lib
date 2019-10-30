@@ -29,11 +29,13 @@ class Hcl implements Serializable {
 
     void add(String resource, String type, String name, Closure body) {
         if (!hcl.containsKey(resource)) {
+            context.steps.echo "init ${resource}"
             hcl.put(resource, [:])
         }
 
         Map<String, Map<String, AbstractConfig>> types = hcl[resource]
         if (!types.containsKey(type)) {
+            context.steps.echo "init ${type}"
             types.put(type, [:])
         }
 
@@ -42,10 +44,12 @@ class Hcl implements Serializable {
             throw new RuntimeException("${resource}.${type}.${name} already defined")
         }
 
+        context.steps.echo "parsing ${resource}.${type}"
         AbstractConfig config = findClass('config', resource, type)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
         hcl.each { key, value ->
+            context.steps.echo "set ${key} to ${resource}.${type}"
             body.setProperty(key, value)
         }
         body.call()
