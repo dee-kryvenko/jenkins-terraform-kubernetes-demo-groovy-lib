@@ -2,8 +2,6 @@ package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
 import jarvis.jenkins.lib.config.AbstractConfig
-import jarvis.jenkins.lib.config.Config
-import jarvis.jenkins.lib.config.artifact.DockerConfig
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -48,9 +46,16 @@ class Hcl implements Serializable {
     }
 
     @NonCPS
-    private Class<AbstractConfig> getConfigClass(String resource, String type) {
-        context.steps.echo DockerConfig.class.getAnnotation(Config.class).getClass().getName()
-        return null
+    private static <T extends Object> T findClass(String kind, String resource, String type, Object... args) {
+        String[] split = type.split('-')
+        String clazz = "${Hcl.class.getPackage().getName()}.${kind}.${resource}.${split.join('.')}"
+        clazz = "${clazz}.${split.collect() { it.capitalize() }.join()}${kind.capitalize()}"
+        return (T) Class.forName(clazz).newInstance(args as Object[])
+    }
+
+    @NonCPS
+    private static Class<AbstractConfig> getConfigClass(String resource, String type) {
+        return findClass('config', resource, type)
     }
 
     @NonCPS
