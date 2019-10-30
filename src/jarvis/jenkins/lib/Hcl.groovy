@@ -1,8 +1,6 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
-import io.github.classgraph.AnnotationParameterValueList
-import io.github.classgraph.ClassGraph
 import jarvis.jenkins.lib.config.AbstractConfig
 import jarvis.jenkins.lib.config.Config
 import jarvis.jenkins.lib.config.artifact.DockerConfig
