@@ -8,12 +8,10 @@ class Hcl implements Serializable {
         static Hcl INSTANCE
     }
 
-    @NonCPS
     static Hcl it() {
         return HclHolder.INSTANCE
     }
 
-    @NonCPS
     static void init(context) {
         if (it() == null) {
             HclHolder.INSTANCE = new Hcl(context)
@@ -27,7 +25,6 @@ class Hcl implements Serializable {
         this.context = context
     }
 
-    @NonCPS
     void add(String resource, String type, String name, Closure body) {
         if (!hcl.containsKey(resource)) {
             hcl.put(resource, [:])
@@ -53,7 +50,6 @@ class Hcl implements Serializable {
         return (T) Class.forName(clazz).newInstance(args as Object[])
     }
 
-    @NonCPS
     void done() {
         List<AbstractConfig> result = []
 
