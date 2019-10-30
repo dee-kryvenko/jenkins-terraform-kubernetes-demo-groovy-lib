@@ -46,8 +46,8 @@ class Hcl implements Serializable {
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
         hcl.each { key, value ->
-            context.steps.echo key
-            body.setProperty(key, value)
+            body.metaClass."${key}" = value
+//            body.setProperty(key, value)
         }
         body.call()
 
