@@ -37,7 +37,7 @@ class Hcl implements Serializable {
             types.put(type, [:])
         }
 
-        Map<String, AbstractConfig> resources = types[resource]
+        Map<String, AbstractConfig> resources = types[type]
         if (resources.containsKey(name)) {
             throw new RuntimeException("${resource}.${type}.${name} already defined")
         }
