@@ -38,7 +38,7 @@ class Hcl implements Serializable {
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
         hcl.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, cfg ->
-            body.setProperty(address, cfg)
+            body.setProperty('artifact', cfg)
         }
         body.call()
 
