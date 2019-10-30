@@ -45,7 +45,7 @@ class Hcl implements Serializable {
         AbstractConfig config = findClass('config', resource, type)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
-        body.setProperty('terraform_module', [:])
+        body.setProperty('artifact', [terraform_module: '111'])
 //        hcl.each { key, value ->
 //            body.setProperty(key, value)
 //        }
