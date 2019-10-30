@@ -51,18 +51,8 @@ class Hcl implements Serializable {
 
     @NonCPS
     private Class<AbstractConfig> getConfigClass(String resource, String type) {
-        new ClassGraph().addClassLoader(this.getClass().getClassLoader()).whitelistPackages(this.getClass().getPackage().getName()).enableAllInfo().scan().withCloseable { scanResult ->
-            context.steps.echo DockerConfig.class.getName()
-            context.steps.echo scanResult.getClassInfo(DockerConfig.class.getName())
-            context.steps.echo scanResult.getClassInfo(DockerConfig.class.getName()).getAnnotationInfo(Config.class.getName()).toString()
-            context.steps.echo scanResult.getClassesWithAnnotation(Config.class.getName()).size().toString()
-            scanResult.getClassesWithAnnotation(Config.class.getName()).find() {
-                context.steps.echo it.toString()
-                AnnotationParameterValueList config = it.getAnnotationInfo(Config.class.getName()).getParameterValues()
-                context.steps.echo config.toString()
-                config.get("resource").equals(resource) && config.get("type").equals(type)
-            } as Class<AbstractConfig>
-        }
+        context.steps.echo DockerConfig.class.getAnnotation(Config.class).getClass().getName()
+        return null
     }
 
     @NonCPS

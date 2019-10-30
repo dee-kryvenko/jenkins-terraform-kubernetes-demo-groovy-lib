@@ -1,5 +1,3 @@
-@Grab(group='io.github.classgraph', module='classgraph', version='4.8.52')
-
 import jarvis.jenkins.lib.Hcl
 
 def get(context, String resource, type) {
