@@ -21,28 +21,36 @@ class Hcl implements Serializable {
     }
 
     private final def context
-    private final TreeMap<String, AbstractConfig> hcl = [:]
+    private final Map<String, Map<String, Map<String, AbstractConfig>>> hcl = [:]
 
     Hcl(context) {
         this.context = context
     }
 
     void add(String resource, String type, String name, Closure body) {
-        String key = [resource, type, name].join(".")
+        if (!hcl.containsKey(resource)) {
+            hcl.put(resource, [:])
+        }
 
-        if (hcl.containsKey(key)) {
-            throw new RuntimeException("${key} already defined")
+        Map<String, Map<String, AbstractConfig>> types = hcl[resource]
+        if (!types.containsKey(type)) {
+            types.put(type, [:])
+        }
+
+        Map<String, AbstractConfig> resources = types[resource]
+        if (resources.containsKey(name)) {
+            throw new RuntimeException("${resource}.${type}.${name} already defined")
         }
 
         AbstractConfig config = findClass('config', resource, type)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
-        hcl.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, cfg ->
-            body.setProperty('artifact', cfg)
+        hcl.each { key, value ->
+            body.setProperty(key, value)
         }
         body.call()
 
-        hcl.put(key, config)
+        resources.put(name, config)
     }
 
     @NonCPS
@@ -54,18 +62,16 @@ class Hcl implements Serializable {
     }
 
     void done() {
-        hcl.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, config ->
-            context.steps.echo address
+        hcl.artifact.each { type, artifact ->
+            artifact.each { name, config ->
+                context.steps.echo "${type}.${name}.${config.toString()}"
+            }
         }
 
-        hcl.subMap('deployment.', 'deployment.' + Character.MAX_VALUE).each { address, config ->
-            context.steps.echo address
-        }
-
-        TerraformDeploymentConfig terraformDeploymentConfig = hcl["deployment.terraform.it.jarvisTfVersion"]
+        TerraformDeploymentConfig terraformDeploymentConfig = hcl.deployment.terraform.it
         context.steps.echo "jarvisTfVersion = ${terraformDeploymentConfig.jarvisTfVersion}"
 
-        DockerArtifactConfig dockerArtifactConfig = hcl["artifact.docker.it"]
+        DockerArtifactConfig dockerArtifactConfig = hcl.artifact.docker.it
 
         context.evaluate """
 pipeline {
