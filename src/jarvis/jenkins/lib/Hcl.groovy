@@ -85,7 +85,7 @@ spec:
     image: "docker:${dockerConfig.getDockerVersion()}-ce-dind"
     securityContext:
         privileged: true
-  - name: dind
+  - name: docker
     image: "docker:${dockerConfig.getDockerVersion()}-ce"
     env:
         - name: DOCKER_HOST
