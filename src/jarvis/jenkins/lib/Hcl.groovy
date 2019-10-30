@@ -101,6 +101,7 @@ spec:
       steps {
         container("dind") {
           container("docker") {
+            sh 'sleep 20'
             sh 'docker ps'
           }
         }
