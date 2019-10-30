@@ -2,6 +2,7 @@ package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
 import jarvis.jenkins.lib.config.AbstractConfig
+import jarvis.jenkins.lib.config.artifact.docker.DockerConfig
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -51,7 +52,7 @@ class Hcl implements Serializable {
     }
 
     void done() {
-        List<AbstractConfig> result = []
+        Map<String, AbstractConfig> result = [:]
 
         hcl.each { resource, types ->
             types.each { type, names ->
@@ -60,10 +61,12 @@ class Hcl implements Serializable {
                     body.setDelegate(config)
                     body.setResolveStrategy(Closure.DELEGATE_FIRST)
                     body.call()
-                    result << config
+                    result.put([resource, type, name].join("."), config)
                 }
             }
         }
+
+        DockerConfig dockerConfig = result["artifact.docker.it"]
 
         context.evaluate """
 pipeline {
@@ -73,13 +76,20 @@ pipeline {
       yaml '''
 apiVersion: v1
 kind: Pod
-metadata:
-  labels:
-    some-label: some-label-value
 spec:
   containers:
-  - name: maven
-    image: maven:alpine
+  - name: jnlp
+    image: "jenkins/jnlp-slave:3.35-5-alpine"
+    tty: true
+  - name: dind
+    image: "docker:${dockerConfig.getDockerVersion()}-ce-dind"
+    securityContext:
+        privileged: true
+  - name: dind
+    image: "docker:${dockerConfig.getDockerVersion()}-ce"
+    env:
+        - name: DOCKER_HOST
+          value: "tcp://localhost:2375"
     command:
     - cat
     tty: true
@@ -87,11 +97,12 @@ spec:
     }
   }
   stages {
-    stage('Run maven') {
+    stage('Debug') {
       steps {
-        container('maven') {
-          sh 'mvn -version'
-          echo "${result.collect() { it.class.getName() }.join(", ")}"
+        container("dind") {
+          container("docker") {
+            sh 'docker ps'
+          }
         }
       }
     }
