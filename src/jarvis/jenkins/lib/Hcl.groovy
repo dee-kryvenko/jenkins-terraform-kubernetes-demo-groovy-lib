@@ -54,19 +54,13 @@ class Hcl implements Serializable {
     }
 
     @NonCPS
-    private static Class<AbstractConfig> getConfigClass(String resource, String type) {
-        return findClass('config', resource, type)
-    }
-
-    @NonCPS
     void done() {
         List<AbstractConfig> result = []
 
         hcl.each { resource, types ->
             types.each { type, names ->
-                Class<AbstractConfig> configClass = getConfigClass(resource, type)
                 names.each { name, body ->
-                    AbstractConfig config = configClass.newInstance()
+                    AbstractConfig config = findClass('config', resource, type)
                     body.setDelegate(config)
                     body.setResolveStrategy(Closure.DELEGATE_FIRST)
                     body.call()
