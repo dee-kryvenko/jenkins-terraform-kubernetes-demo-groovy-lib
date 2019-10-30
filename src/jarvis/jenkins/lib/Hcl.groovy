@@ -2,7 +2,7 @@ package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
 import jarvis.jenkins.lib.config.AbstractConfig
-import jarvis.jenkins.lib.config.artifact.docker.DockerConfig
+import jarvis.jenkins.lib.config.artifact.docker.DockerArtifactConfig
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -38,7 +38,7 @@ class Hcl implements Serializable {
     private static <T extends Object> T findClass(String kind, String resource, String type, Object... args) {
         String[] split = type.split('-')
         String clazz = "${Hcl.class.getPackage().getName()}.${kind}.${resource}.${split.join('.')}"
-        clazz = "${clazz}.${split.collect() { it.capitalize() }.join()}${kind.capitalize()}"
+        clazz = "${clazz}.${split.collect() { it.capitalize() }.join()}${resource.capitalize()}${kind.capitalize()}"
         return (T) Class.forName(clazz).newInstance(args as Object[])
     }
 
@@ -57,7 +57,12 @@ class Hcl implements Serializable {
         result.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, config ->
             context.steps.echo address
         }
-        DockerConfig dockerConfig = result["artifact.docker.it"]
+
+        result.subMap('deployment.', 'deployment.' + Character.MAX_VALUE).each { address, config ->
+            context.steps.echo address
+        }
+
+        DockerArtifactConfig dockerConfig = result["artifact.docker.it"]
 
         context.evaluate """
 pipeline {
