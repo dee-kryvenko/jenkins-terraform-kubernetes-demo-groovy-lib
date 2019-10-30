@@ -11,7 +11,8 @@ class DockerArtifactConfig extends AbstractConfig implements Serializable {
         return dockerVersion
     }
 
-    void dockerVersion(String dockerVersion) {
+    @NonCPS
+    void setDockerVersion(String dockerVersion) {
         this.dockerVersion = dockerVersion
     }
 }

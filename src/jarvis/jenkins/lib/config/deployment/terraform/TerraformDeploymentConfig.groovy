@@ -11,7 +11,8 @@ class TerraformDeploymentConfig extends AbstractConfig implements Serializable {
         return jarvisTfVersion
     }
 
-    void jarvisTfVersion(String jarvisTfVersion) {
+    @NonCPS
+    void setJarvisTfVersion(String jarvisTfVersion) {
         this.jarvisTfVersion = jarvisTfVersion
     }
 }
