@@ -20,7 +20,7 @@ class Hcl implements Serializable {
     }
 
     private final def context
-    private final NavigableMap<String, Closure> hcl = [:]
+    private final TreeMap<String, Closure> hcl = [:]
 
     Hcl(context) {
         this.context = context
@@ -43,7 +43,7 @@ class Hcl implements Serializable {
     }
 
     void done() {
-        NavigableMap<String, AbstractConfig> result = [:]
+        TreeMap<String, AbstractConfig> result = [:]
 
         hcl.each { address, body ->
             def (resource, type, name) = address.split(".")
