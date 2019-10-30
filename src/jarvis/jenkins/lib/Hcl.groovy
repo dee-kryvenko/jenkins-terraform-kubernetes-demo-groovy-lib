@@ -46,7 +46,7 @@ class Hcl implements Serializable {
         TreeMap<String, AbstractConfig> result = [:]
 
         hcl.each { address, body ->
-            def (resource, type, name) = address.split(".")
+            def (resource, type, name) = address.split('\\.')
             AbstractConfig config = findClass('config', resource, type)
             body.setDelegate(config)
             body.setResolveStrategy(Closure.DELEGATE_FIRST)
@@ -54,7 +54,7 @@ class Hcl implements Serializable {
             result.subMap().put(address, config)
         }
 
-        result.subMap('artifact', 'artifact' + Character.MAX_VALUE).each { address, config ->
+        result.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, config ->
             context.steps.echo address
         }
         DockerConfig dockerConfig = result["artifact.docker.it"]
