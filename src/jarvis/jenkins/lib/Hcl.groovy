@@ -3,6 +3,7 @@ package jarvis.jenkins.lib
 import com.cloudbees.groovy.cps.NonCPS
 import jarvis.jenkins.lib.config.AbstractConfig
 import jarvis.jenkins.lib.config.artifact.docker.DockerArtifactConfig
+import jarvis.jenkins.lib.config.deployment.terraform.TerraformDeploymentConfig
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -20,7 +21,7 @@ class Hcl implements Serializable {
     }
 
     private final def context
-    private final TreeMap<String, Closure> hcl = [:]
+    private final TreeMap<String, AbstractConfig> hcl = [:]
 
     Hcl(context) {
         this.context = context
@@ -28,10 +29,20 @@ class Hcl implements Serializable {
 
     void add(String resource, String type, String name, Closure body) {
         String key = [resource, type, name].join(".")
+
         if (hcl.containsKey(key)) {
             throw new RuntimeException("${key} already defined")
         }
-        hcl.put(key, body)
+
+        AbstractConfig config = findClass('config', resource, type)
+        body.setDelegate(config)
+        body.setResolveStrategy(Closure.DELEGATE_FIRST)
+        hcl.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, cfg ->
+            body.setProperty(address, cfg)
+        }
+        body.call()
+
+        hcl.put(key, config)
     }
 
     @NonCPS
@@ -43,26 +54,18 @@ class Hcl implements Serializable {
     }
 
     void done() {
-        TreeMap<String, AbstractConfig> result = [:]
-
-        hcl.each { address, body ->
-            def (resource, type, name) = address.split('\\.')
-            AbstractConfig config = findClass('config', resource, type)
-            body.setDelegate(config)
-            body.setResolveStrategy(Closure.DELEGATE_FIRST)
-            body.call()
-            result.put(address, config)
-        }
-
-        result.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, config ->
+        hcl.subMap('artifact.', 'artifact.' + Character.MAX_VALUE).each { address, config ->
             context.steps.echo address
         }
 
-        result.subMap('deployment.', 'deployment.' + Character.MAX_VALUE).each { address, config ->
+        hcl.subMap('deployment.', 'deployment.' + Character.MAX_VALUE).each { address, config ->
             context.steps.echo address
         }
 
-        DockerArtifactConfig dockerConfig = result["artifact.docker.it"]
+        TerraformDeploymentConfig terraformDeploymentConfig = hcl["deployment.terraform.it.jarvisTfVersion"]
+        context.steps.echo "jarvisTfVersion = ${terraformDeploymentConfig.jarvisTfVersion}"
+
+        DockerArtifactConfig dockerArtifactConfig = hcl["artifact.docker.it"]
 
         context.evaluate """
 pipeline {
@@ -78,14 +81,14 @@ spec:
     image: "jenkins/jnlp-slave:3.35-5-alpine"
     tty: true
   - name: dind
-    image: "docker:${dockerConfig.getDockerVersion()}-dind"
+    image: "docker:${dockerArtifactConfig.getDockerVersion()}-dind"
     securityContext:
         privileged: true
     env:
         - name: DOCKER_TLS_CERTDIR
           value: ""
   - name: docker
-    image: "docker:${dockerConfig.getDockerVersion()}"
+    image: "docker:${dockerArtifactConfig.getDockerVersion()}"
     env:
         - name: DOCKER_HOST
           value: "tcp://localhost:2375"
