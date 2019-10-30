@@ -85,11 +85,14 @@ spec:
     image: "docker:${dockerConfig.getDockerVersion()}-dind"
     securityContext:
         privileged: true
+    env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
   - name: docker
     image: "docker:${dockerConfig.getDockerVersion()}"
     env:
         - name: DOCKER_HOST
-          value: "tcp://localhost:2376"
+          value: "tcp://localhost:2375"
     command:
     - cat
     tty: true
@@ -101,7 +104,6 @@ spec:
       steps {
         container("dind") {
           container("docker") {
-            sh 'sleep 20'
             sh 'docker ps'
           }
         }
