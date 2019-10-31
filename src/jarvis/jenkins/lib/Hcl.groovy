@@ -43,7 +43,7 @@ class Hcl implements Serializable {
         }
 
         AbstractConfig config = findClass('config', resource, type)
-        body = body.rehydrate(config, hcl, hcl)
+        body = body.rehydrate(config, hcl, body.getThisObject())
         body.setResolveStrategy(Closure.DELEGATE_FIRST)
 //        body.setDelegate(config)
 //        body.setResolveStrategy(Closure.DELEGATE_ONLY)
