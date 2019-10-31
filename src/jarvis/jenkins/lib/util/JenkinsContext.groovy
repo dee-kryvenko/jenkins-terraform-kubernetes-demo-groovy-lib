@@ -21,6 +21,11 @@ class JenkinsContext implements Serializable {
     private context
 
     @NonCPS
+    def getContext() {
+        return context
+    }
+
+    @NonCPS
     def getSteps() {
         return this.context.steps
     }
@@ -32,6 +37,6 @@ class JenkinsContext implements Serializable {
 
     void evaluate(String dsl) {
         this.echo(dsl)
-        this.getSteps().evaluate(dsl)
+        this.getContext().evaluate(dsl)
     }
 }
