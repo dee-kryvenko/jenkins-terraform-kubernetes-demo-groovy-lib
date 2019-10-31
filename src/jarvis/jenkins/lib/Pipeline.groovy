@@ -19,7 +19,7 @@ class Pipeline implements Serializable {
 pipeline {
   agent none
   stages {
-<% stages.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
+<% out.print stages.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
   }
 }
 '''.trim()
@@ -28,7 +28,7 @@ pipeline {
 stage("${stageName}") {
   agent ${agent}
   steps {
-<% steps.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
+<% out.print steps.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
   }
 }
 '''.trim()
@@ -41,7 +41,7 @@ kubernetes {
       kind: Pod
       spec:
         containers:
-<% containers.join('\\n').readLines().collect { line -> "        ${line}" }.join('\\n') %>
+<% out.print containers.join('\\n').readLines().collect { line -> "        ${line}" }.join('\\n') %>
 '''.trim()
 
         List<String> testingContainers = []
