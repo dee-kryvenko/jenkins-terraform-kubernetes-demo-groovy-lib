@@ -22,6 +22,6 @@ container("dind-artifact-docker-${config.name}") {
     sh "docker ps"
   }
 }
-''']
+'''.trim()]
     }
 }
