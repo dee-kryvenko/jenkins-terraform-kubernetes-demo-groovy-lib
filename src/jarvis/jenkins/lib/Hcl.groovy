@@ -91,10 +91,10 @@ class Hcl implements Serializable {
             }
         }
 
-        TerraformDeploymentConfig terraformDeploymentConfig = hcl.deployment.terraform.it as TerraformDeploymentConfig
+        TerraformDeploymentConfig terraformDeploymentConfig = hcl.deployment.terraform.it.config as TerraformDeploymentConfig
         context.steps.echo "jarvisTfVersion = ${terraformDeploymentConfig.jarvisTfVersion}"
 
-        DockerArtifactConfig dockerArtifactConfig = hcl.artifact.docker.it as DockerArtifactConfig
+        DockerArtifactConfig dockerArtifactConfig = hcl.artifact.docker.it.config as DockerArtifactConfig
         context.steps.echo "dockerVersion = ${dockerArtifactConfig.dockerVersion}"
 
         context.evaluate """
