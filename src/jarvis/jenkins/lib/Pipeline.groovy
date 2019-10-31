@@ -42,6 +42,7 @@ kubernetes {
       spec:
         containers:
 <% out.print containers.join('\\n').readLines().collect { line -> "        ${line}" }.join('\\n') %>
+"""
 '''.trim()
 
         List<String> testingContainers = []
