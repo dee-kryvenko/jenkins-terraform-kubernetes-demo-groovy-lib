@@ -1,7 +1,6 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
-import groovy.transform.ToString
 import jarvis.jenkins.lib.artifact.docker.DockerArtifactConfig
 import jarvis.jenkins.lib.deployment.terraform.TerraformDeploymentConfig
 
@@ -22,11 +21,15 @@ class Hcl implements Serializable {
 
     private final def context
 
-    @ToString(includeNames=true, includeFields=true)
     class Resource {
         Closure body
         AbstractConfig config
         AbstractOutput output
+
+        @Override
+        String toString() {
+            return "body:${body.toString()}, config:${config.toString()}, output:${output.toString()}"
+        }
     }
 
     private final Map<String, Map<String, Map<String, Resource>>> hcl = [:]
