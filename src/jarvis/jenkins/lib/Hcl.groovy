@@ -53,6 +53,7 @@ class Hcl implements Serializable {
 //            body.setProperty(key, value)
             config.metaClass.setProperty(config, key, value)
         }
+        context.steps.echo "about to call"
         body.call()
 
         resources.put(name, config)
