@@ -51,6 +51,7 @@ class Hcl implements Serializable {
         hcl.each { key, value ->
             context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
 //            body.setProperty(key, value)
+            config.metaClass.setProperty(config, key, value)
         }
         body.call()
 
