@@ -46,10 +46,10 @@ class Hcl implements Serializable {
 //        Closure bodyClone = body.rehydrate(config, hcl, hcl)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_ONLY)
-        hcl.each { key, value ->
-            context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
-            body.setProperty(key, value)
-        }
+//        hcl.each { key, value ->
+//            context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
+//            body.setProperty(key, value)
+//        }
         body.call()
 
         resources.put(name, config)
