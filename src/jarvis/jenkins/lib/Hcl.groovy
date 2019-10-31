@@ -83,7 +83,8 @@ class Hcl implements Serializable {
                     context.steps.echo "${kind}.${type}.${name} = ${it}"
 
                     it.body.setDelegate(it.config)
-                    it.body.setResolveStrategy(DELEGATE_ONLY)
+                    //noinspection UnnecessaryQualifiedReference
+                    it.body.setResolveStrategy(Closure.DELEGATE_ONLY)
                     outputs.each { key, value ->
                         it.config.metaClass."${key}" = value
                     }
