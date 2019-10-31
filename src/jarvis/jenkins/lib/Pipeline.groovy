@@ -53,7 +53,7 @@ pipeline {
   agent none
   stages {
     stage('Debug1') {
-      agent k8s
+      agent ${k8s}
       steps {
         container("dind") {
           container("docker") {
@@ -63,7 +63,7 @@ pipeline {
       }
     }
     stage('Debug2') {
-      agent ${k8s}
+      agent none
       steps {
         echo 'hi'
       }
