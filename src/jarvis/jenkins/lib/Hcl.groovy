@@ -48,10 +48,14 @@ class Hcl implements Serializable {
 //        body.setResolveStrategy(Closure.DELEGATE_FIRST)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_ONLY)
-        hcl.each { key, value ->
-            context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
+        try {
+            hcl.each { key, value ->
+                context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
 //            body.setProperty(key, value)
-            config.metaClass.setProperty(config, key, value)
+                config.metaClass.setProperty(config, key, value)
+            }
+        } catch (Throwable e) {
+            context.steps.echo e.getMessage()
         }
         context.steps.echo "about to call"
         body.call()
