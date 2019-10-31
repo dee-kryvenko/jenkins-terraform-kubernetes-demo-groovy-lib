@@ -1,8 +1,7 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
-import jarvis.jenkins.lib.artifact.docker.DockerArtifactConfig
-import jarvis.jenkins.lib.deployment.terraform.TerraformDeploymentConfig
+import jarvis.jenkins.lib.util.JenkinsContext
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -17,6 +16,7 @@ class Hcl implements Serializable {
         if (it() == null) {
             HclHolder.INSTANCE = new Hcl(context)
         }
+        JenkinsContext.init(context)
     }
 
     private final def context
@@ -99,7 +99,7 @@ class Hcl implements Serializable {
                 resources.each { name, it ->
                     it.body.setDelegate(it.config)
                     //noinspection UnnecessaryQualifiedReference
-                    it.body.setResolveStrategy(Closure.DELEGATE_ONLY)
+                    it.body.getThisObject().setResolveStrategy(Closure.DELEGATE_ONLY)
                     outputs.each { key, value ->
                         it.config.metaClass."${key}" = value
                     }
@@ -108,55 +108,6 @@ class Hcl implements Serializable {
             }
         }
 
-        TerraformDeploymentConfig terraformDeploymentConfig = hcl.deployment.terraform.it.config as TerraformDeploymentConfig
-        context.steps.echo "jarvisTfVersion = ${terraformDeploymentConfig.jarvisTfVersion}"
-
-        DockerArtifactConfig dockerArtifactConfig = hcl.artifact.docker.it.config as DockerArtifactConfig
-        context.steps.echo "dockerVersion = ${dockerArtifactConfig.dockerVersion}"
-
-        context.evaluate """
-pipeline {
-  agent {
-    kubernetes {
-      defaultContainer 'jnlp'
-      yaml '''
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: jnlp
-    image: "jenkins/jnlp-slave:3.35-5-alpine"
-    tty: true
-  - name: dind
-    image: "docker:${dockerArtifactConfig.getDockerVersion()}-dind"
-    securityContext:
-        privileged: true
-    env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
-  - name: docker
-    image: "docker:${dockerArtifactConfig.getDockerVersion()}"
-    env:
-        - name: DOCKER_HOST
-          value: "tcp://localhost:2375"
-    command:
-    - cat
-    tty: true
-'''
-    }
-  }
-  stages {
-    stage('Debug') {
-      steps {
-        container("dind") {
-          container("docker") {
-            sh 'docker ps'
-          }
-        }
-      }
-    }
-  }
-}
-"""
+        JenkinsContext.it().evaluate(new Pipeline().getJenkinsfile())
     }
 }
