@@ -7,6 +7,10 @@ import jarvis.jenkins.lib.util.JenkinsContext
 class Pipeline implements Serializable {
     private final SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources = new TreeMap<>()
 
+    Pipeline(SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources) {
+        this.resources = resources
+    }
+
     String getJenkinsfile() {
         TerraformDeploymentConfig terraformDeploymentConfig = resources.deployment.terraform.it.config as TerraformDeploymentConfig
         JenkinsContext.it().echo(terraformDeploymentConfig.getJarvisTfVersion())
