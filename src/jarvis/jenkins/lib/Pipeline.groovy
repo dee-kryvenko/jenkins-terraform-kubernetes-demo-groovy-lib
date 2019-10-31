@@ -15,8 +15,7 @@ class Pipeline implements Serializable {
     String getJenkinsfile() {
         GStringTemplateEngine engine = new GStringTemplateEngine()
 
-        String pipeline = '''
-pipeline {
+        String pipeline = '''pipeline {
   agent none
   stages {
 <% stages.each { out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') } %>
@@ -24,8 +23,7 @@ pipeline {
 }
 '''
 
-        String stage = '''
-stage("${stageName}") {
+        String stage = '''stage("${stageName}") {
   agent ${agent}
   steps {
 <% steps.each { out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') } %>
