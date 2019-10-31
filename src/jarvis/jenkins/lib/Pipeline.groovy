@@ -50,12 +50,11 @@ kubernetes {
             resources.each { String name, Hcl.Resource resource ->
                 AbstractArtifact artifact = resource.resource as AbstractArtifact
                 AbstractArtifactConfig config = resource.config as AbstractArtifactConfig
-                testingContainers.addAll(artifact.getPipelineImages().collect() {
-                    engine.createTemplate(it.getYaml()).make([
-                            key: "artifact-${type}-${name}",
-                            config: config
-                    ]).toString()
-                })
+                artifact.getPipelineImages().collect() { it.getYaml() }.join('\\n')
+                testingContainers << engine.createTemplate(artifact.getPipelineImages().collect() { it.getYaml() }.join('\\n')).make([
+                        key: "artifact-${type}-${name}",
+                        config: config
+                ]).toString()
                 testingSteps.addAll(artifact.getTestingSteps().collect() {
                     engine.createTemplate(it).make([
                             config: config
