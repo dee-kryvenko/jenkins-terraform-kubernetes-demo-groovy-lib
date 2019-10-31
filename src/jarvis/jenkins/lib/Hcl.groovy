@@ -71,8 +71,7 @@ class Hcl implements Serializable {
             types.each { type, resources ->
                 resources.each { name, it ->
                     context.steps.echo "${kind}.${type}.${name} = ${it}"
-
-                    return it.output
+                    it.output
                 }
             }
         } as Map<String, Map<String, Map<String, AbstractOutput>>>
