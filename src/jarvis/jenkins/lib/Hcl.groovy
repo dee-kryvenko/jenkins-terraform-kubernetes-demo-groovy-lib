@@ -47,7 +47,7 @@ class Hcl implements Serializable {
 //        body.setResolveStrategy(Closure.DELEGATE_FIRST)
         body.setDelegate(config)
         body.setResolveStrategy(Closure.DELEGATE_ONLY)
-        for (Map.Entry it : hcl.keySet()) {
+        for (Map.Entry it : hcl.entrySet()) {
             body.setProperty(it.key, it.value)
         }
 //        hcl.each { key, value ->
