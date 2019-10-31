@@ -48,7 +48,7 @@ class Hcl implements Serializable {
         bodyClone.setResolveStrategy(Closure.DELEGATE_FIRST)
         hcl.each { key, value ->
             context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
-            body.setProperty(key, new HashMap(value))
+            bodyClone.setProperty(key, new HashMap(value))
         }
         bodyClone.call()
 
