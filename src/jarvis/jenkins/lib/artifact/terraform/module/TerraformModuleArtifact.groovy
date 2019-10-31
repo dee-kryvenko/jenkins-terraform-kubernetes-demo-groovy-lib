@@ -1,11 +1,14 @@
 package jarvis.jenkins.lib.artifact.terraform.module
 
-import jarvis.jenkins.lib.AbstractConfig
-import jarvis.jenkins.lib.AbstractOutput
-import jarvis.jenkins.lib.AbstractResource
+import jarvis.jenkins.lib.artifact.AbstractArtifact
 
-class TerraformModuleArtifact extends AbstractResource implements Serializable {
-    TerraformModuleArtifact(AbstractConfig config, AbstractOutput output) {
+class TerraformModuleArtifact extends AbstractArtifact implements Serializable {
+    TerraformModuleArtifact(TerraformModuleArtifactConfig config, TerraformModuleArtifactOutput output) {
         super(config, output)
+    }
+
+    @Override
+    List<String> getTestingSteps() {
+        return [""]
     }
 }

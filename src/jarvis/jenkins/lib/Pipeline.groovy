@@ -1,8 +1,9 @@
 package jarvis.jenkins.lib
 
-import jarvis.jenkins.lib.artifact.docker.DockerArtifactConfig
-import jarvis.jenkins.lib.deployment.terraform.TerraformDeploymentConfig
-import jarvis.jenkins.lib.util.JenkinsContext
+import groovy.text.GStringTemplateEngine
+import jarvis.jenkins.lib.artifact.AbstractArtifact
+import jarvis.jenkins.lib.artifact.AbstractArtifactConfig
+import jarvis.jenkins.lib.util.DockerImages
 
 class Pipeline implements Serializable {
     private SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources = new TreeMap<>()
@@ -12,64 +13,68 @@ class Pipeline implements Serializable {
     }
 
     String getJenkinsfile() {
-        SortedMap<String, SortedMap<String, Hcl.Resource>> artifacts = resources.artifacts
-        TerraformDeploymentConfig terraformDeploymentConfig = resources.deployment.terraform.it.config as TerraformDeploymentConfig
-        JenkinsContext.it().echo(terraformDeploymentConfig.getJarvisTfVersion())
-        DockerArtifactConfig dockerArtifactConfig = resources.artifact.docker.it.config as DockerArtifactConfig
-        JenkinsContext.it().echo(dockerArtifactConfig.getDockerVersion())
+        GStringTemplateEngine engine = new GStringTemplateEngine()
 
-        String k8s = """{
-    kubernetes {
-      defaultContainer 'jnlp'
-      yaml '''
+        String pipeline = '''
+pipeline {
+  agent none
+  stages {
+<% stages.each { %>
+<% out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') %>
+<% } %>
+  }
+}
+'''
+
+        String stage = '''
+stage("${stageName}") {
+  agent ${agent}
+  steps {
+<% steps.each { %>
+<% out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') %>
+<% } %>
+  }
+}
+'''
+
+        String k8s = '''
+kubernetes {
+  defaultContainer "jnlp"
+  yaml """
 apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: jnlp
-    image: "jenkins/jnlp-slave:3.35-5-alpine"
-    tty: true
-  - name: dind
-    image: "docker:${dockerArtifactConfig.getDockerVersion()}-dind"
-    securityContext:
-        privileged: true
-    env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
-  - name: docker
-    image: "docker:${dockerArtifactConfig.getDockerVersion()}"
-    env:
-        - name: DOCKER_HOST
-          value: "tcp://localhost:2375"
-    command:
-    - cat
-    tty: true
+<% containers.each { %>
+  - <% out.print it.readLines().collect { line -> "  ${line}" }.join('\\n') %>
+<% } %>
 '''
-    }
-}
-"""
-        """
-pipeline {
-  agent none
-  stages {
-    stage('Debug1') {
-      agent ${k8s}
-      steps {
-        container("dind") {
-          container("docker") {
-            sh 'docker ps'
-          }
+
+        List<String> testingContainers = []
+        List<String> testingSteps = []
+        resources.artifact.each { String type, resources ->
+            resources.each { String name, Hcl.Resource resource ->
+                AbstractArtifact artifact = resource.resource as AbstractArtifact
+                AbstractArtifactConfig config = resource.config as AbstractArtifactConfig
+                testingContainers.addAll(artifact.getPipelineImages().collect() {
+                    engine.createTemplate(it.getYaml()).make([
+                            key: "artifact-${type}-${name}",
+                            config: config
+                    ]).toString()
+                })
+                testingSteps.addAll(artifact.getTestingSteps())
+            }
         }
-      }
-    }
-    stage('Debug2') {
-      agent none
-      steps {
-        echo 'hi'
-      }
-    }
-  }
-}
-"""
+        String testingAgent = engine.createTemplate(k8s).make([
+                containers: [DockerImages.JNLP.getYaml()] + testingContainers
+        ]).toString()
+        String testingStage = engine.createTemplate(stage).make([
+                stageName: "Testing",
+                agent: testingAgent
+        ]).toString()
+
+        return engine.createTemplate(pipeline).make([
+                stages: [testingStage]
+        ]).toString()
     }
 }

@@ -1,11 +1,9 @@
 package jarvis.jenkins.lib.deployment.terraform
 
-import jarvis.jenkins.lib.AbstractConfig
-import jarvis.jenkins.lib.AbstractOutput
-import jarvis.jenkins.lib.AbstractResource
+import jarvis.jenkins.lib.deployment.AbstractDeployment
 
-class TerraformDeployment extends AbstractResource implements Serializable {
-    TerraformDeployment(AbstractConfig config, AbstractOutput output) {
+class TerraformDeployment extends AbstractDeployment implements Serializable {
+    TerraformDeployment(TerraformDeploymentConfig config, TerraformDeploymentOutput output) {
         super(config, output)
     }
 }

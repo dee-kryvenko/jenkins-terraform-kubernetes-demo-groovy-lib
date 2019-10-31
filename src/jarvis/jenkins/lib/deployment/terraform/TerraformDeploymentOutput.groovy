@@ -1,6 +1,6 @@
 package jarvis.jenkins.lib.deployment.terraform
 
-import jarvis.jenkins.lib.AbstractOutput
+import jarvis.jenkins.lib.deployment.AbstractDeploymentOutput
 
-class TerraformDeploymentOutput extends AbstractOutput implements Serializable {
+class TerraformDeploymentOutput extends AbstractDeploymentOutput implements Serializable {
 }

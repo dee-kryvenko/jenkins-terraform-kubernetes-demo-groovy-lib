@@ -1,10 +1,14 @@
 package jarvis.jenkins.lib.deployment.terraform
 
 import com.cloudbees.groovy.cps.NonCPS
-import jarvis.jenkins.lib.AbstractConfig
+import jarvis.jenkins.lib.deployment.AbstractDeploymentConfig
 
-class TerraformDeploymentConfig extends AbstractConfig implements Serializable {
+class TerraformDeploymentConfig extends AbstractDeploymentConfig implements Serializable {
     private String jarvisTfVersion
+
+    TerraformDeploymentConfig(String name) {
+        super(name)
+    }
 
     @NonCPS
     String getJarvisTfVersion() {

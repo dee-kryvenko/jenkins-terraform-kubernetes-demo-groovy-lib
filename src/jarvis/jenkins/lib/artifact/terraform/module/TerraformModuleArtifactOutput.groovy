@@ -1,6 +1,6 @@
 package jarvis.jenkins.lib.artifact.terraform.module
 
-import jarvis.jenkins.lib.AbstractOutput
+import jarvis.jenkins.lib.artifact.AbstractArtifactOutput
 
-class TerraformModuleArtifactOutput extends AbstractOutput implements Serializable {
+class TerraformModuleArtifactOutput extends AbstractArtifactOutput implements Serializable {
 }

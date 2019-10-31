@@ -22,9 +22,9 @@ class Hcl implements Serializable {
     private final def context
 
     class Resource {
-        Resource(Closure body, String resource, String type) {
+        Resource(Closure body, String resource, String type, String name) {
             this.body = body
-            this.config = findClass('config', resource, type)
+            this.config = findClass('config', resource, type, name)
             this.output = findClass('output', resource, type)
             this.output.wrap(this.config)
             this.resource = findClass(resource, type, this.config, this.output)
@@ -73,7 +73,7 @@ class Hcl implements Serializable {
             throw new RuntimeException("${resource}.${type}.${name} already defined")
         }
 
-        resources.put(name, new Resource(body, resource, type))
+        resources.put(name, new Resource(body, resource, type, name))
     }
 
     @NonCPS
