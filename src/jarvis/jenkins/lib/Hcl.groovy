@@ -27,7 +27,7 @@ class Hcl implements Serializable {
         this.context = context
     }
 
-    void add(String resource, String type, String name, Closure body) {
+    def add(String resource, String type, String name, Closure body) {
         if (!hcl.containsKey(resource)) {
             hcl.put(resource, [:])
         }
@@ -53,6 +53,8 @@ class Hcl implements Serializable {
         body.call()
 
         resources.put(name, config)
+
+        return context
     }
 
     @NonCPS
@@ -63,7 +65,7 @@ class Hcl implements Serializable {
         return (T) Class.forName(clazz).newInstance(args as Object[])
     }
 
-    void done() {
+    def done() {
         hcl.artifact.each { type, artifact ->
             artifact.each { name, config ->
                 context.steps.echo "${type}.${name}.${config.toString()}"
@@ -120,5 +122,7 @@ spec:
   }
 }
 """
+
+        return context
     }
 }
