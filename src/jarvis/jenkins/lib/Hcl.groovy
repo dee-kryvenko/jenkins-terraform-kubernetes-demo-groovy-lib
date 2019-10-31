@@ -43,9 +43,9 @@ class Hcl implements Serializable {
         }
 
         AbstractConfig config = findClass('config', resource, type)
-        Closure bodyClone = body.rehydrate(config, this, this)
+        Closure bodyClone = body.rehydrate(config, hcl, hcl)
 //        bodyClone.setDelegate(config)
-        bodyClone.setResolveStrategy(Closure.DELEGATE_ONLY)
+        bodyClone.setResolveStrategy(Closure.DELEGATE_FIRST)
 //        hcl.each { key, value ->
 //            context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
 //            bodyClone.setProperty(key, value)
@@ -70,10 +70,11 @@ class Hcl implements Serializable {
             }
         }
 
-        TerraformDeploymentConfig terraformDeploymentConfig = hcl.deployment.terraform.it
+        TerraformDeploymentConfig terraformDeploymentConfig = hcl.deployment.terraform.it as TerraformDeploymentConfig
         context.steps.echo "jarvisTfVersion = ${terraformDeploymentConfig.jarvisTfVersion}"
 
-        DockerArtifactConfig dockerArtifactConfig = hcl.artifact.docker.it
+        DockerArtifactConfig dockerArtifactConfig = hcl.artifact.docker.it as DockerArtifactConfig
+        context.steps.echo "dockerVersion = ${dockerArtifactConfig.dockerVersion}"
 
         context.evaluate """
 pipeline {
