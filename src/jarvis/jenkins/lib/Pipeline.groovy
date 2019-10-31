@@ -5,13 +5,14 @@ import jarvis.jenkins.lib.deployment.terraform.TerraformDeploymentConfig
 import jarvis.jenkins.lib.util.JenkinsContext
 
 class Pipeline implements Serializable {
-    private final SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources = new TreeMap<>()
+    private SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources = new TreeMap<>()
 
     Pipeline(SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources) {
         this.resources = resources
     }
 
     String getJenkinsfile() {
+        SortedMap<String, SortedMap<String, Hcl.Resource>> artifacts = resources.artifacts
         TerraformDeploymentConfig terraformDeploymentConfig = resources.deployment.terraform.it.config as TerraformDeploymentConfig
         JenkinsContext.it().echo(terraformDeploymentConfig.getJarvisTfVersion())
         DockerArtifactConfig dockerArtifactConfig = resources.artifact.docker.it.config as DockerArtifactConfig
@@ -49,13 +50,18 @@ spec:
     }
   }
   stages {
-    stage('Debug') {
+    stage('Debug1') {
       steps {
         container("dind") {
           container("docker") {
             sh 'docker ps'
           }
         }
+      }
+    }
+    stage('Debug2') {
+      steps {
+        echo 'hi'
       }
     }
   }
