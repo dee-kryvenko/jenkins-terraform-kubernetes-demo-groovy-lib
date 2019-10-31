@@ -53,6 +53,7 @@ class Hcl implements Serializable {
         AbstractConfig config = findClass('config', resource, type)
         it.config = config
         AbstractOutput output = findClass('output', resource, type)
+        output.wrap(config)
         it.output = output
         resources.put(name, it)
     }
@@ -74,7 +75,7 @@ class Hcl implements Serializable {
                     return it.output
                 }
             }
-        }
+        } as Map<String, Map<String, Map<String, AbstractOutput>>>
 
         hcl.each { kind, types ->
             types.each { type, resources ->

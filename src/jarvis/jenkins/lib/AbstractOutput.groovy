@@ -1,4 +1,4 @@
 package jarvis.jenkins.lib
 
-interface AbstractOutput {
+class AbstractOutput extends groovy.util.Proxy implements Serializable {
 }
