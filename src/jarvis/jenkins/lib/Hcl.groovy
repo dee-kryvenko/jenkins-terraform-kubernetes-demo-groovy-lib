@@ -74,13 +74,13 @@ class Hcl implements Serializable {
 
     def done() {
         //noinspection GroovyAssignabilityCheck
-        Map<String, Map<String, Map<String, AbstractOutput>>> outputs = hcl.each { kind, types ->
-            types.each { type, resources ->
-                resources.each { name, it ->
+        Map<String, Map<String, Map<String, AbstractOutput>>> outputs = hcl.collectEntries { kind, types ->
+            [(kind): types.collectEntries { type, resources ->
+                [(type): resources.collectEntries { name, it ->
                     context.steps.echo "${kind}.${type}.${name} = ${it}"
-                    it.output
-                }
-            }
+                    [(name): it.output]
+                }]
+            }]
         }
 
         hcl.each { kind, types ->
