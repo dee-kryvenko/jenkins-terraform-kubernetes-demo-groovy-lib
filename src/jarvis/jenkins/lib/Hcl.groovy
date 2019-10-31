@@ -46,7 +46,7 @@ class Hcl implements Serializable {
         Closure bodyClone = body.clone()
         bodyClone.setDelegate(config)
         bodyClone.setResolveStrategy(Closure.DELEGATE_FIRST)
-        bodyClone.setProperty('artifact', [qwe: '111'])
+//        bodyClone.setProperty('artifact', [terraformModule: '111'])
 //        hcl.each { key, value ->
 //            body.setProperty(key, value)
 //        }
