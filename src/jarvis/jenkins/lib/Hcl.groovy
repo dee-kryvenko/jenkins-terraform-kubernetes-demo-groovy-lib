@@ -1,6 +1,7 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
+import groovy.util.Proxy
 import jarvis.jenkins.lib.config.AbstractConfig
 import jarvis.jenkins.lib.config.artifact.docker.DockerArtifactConfig
 import jarvis.jenkins.lib.config.deployment.terraform.TerraformDeploymentConfig
@@ -43,15 +44,16 @@ class Hcl implements Serializable {
         }
 
         AbstractConfig config = findClass('config', resource, type)
+        Proxy proxy = new Proxy().wrap(config)
 //        body = body.clone()
 //        body = body.rehydrate(body.getDelegate(), body.getOwner(), body.getThisObject())
 //        body.setResolveStrategy(Closure.DELEGATE_FIRST)
-        body.setDelegate(config)
+        body.setDelegate(proxy)
         body.setResolveStrategy(Closure.DELEGATE_ONLY)
         try {
             hcl.each { key, value ->
                 context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
-                body."${key}" = value
+                proxy.metaClass."${key}" = value
             }
         } catch (Throwable e) {
             context.steps.echo ">>> ${e.getMessage()}"
