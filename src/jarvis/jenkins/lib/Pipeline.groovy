@@ -26,7 +26,9 @@ pipeline {
 
         String stage = '''
 stage("${stageName}") {
-  agent ${agent}
+  agent {
+<% out.print agent.readLines().collect { line -> "    ${line}" }.join('\\n') %>
+  }
   steps {
 <% out.print steps.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
   }
@@ -42,7 +44,7 @@ kubernetes {
       spec:
         containers:
 <% out.print containers.join('\\n').readLines().collect { line -> "        ${line}" }.join('\\n') %>
-"""
+    """
 '''.trim()
 
         List<String> testingContainers = []
