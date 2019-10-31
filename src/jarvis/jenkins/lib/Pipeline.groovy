@@ -19,7 +19,7 @@ class Pipeline implements Serializable {
         JenkinsContext.it().echo(dockerArtifactConfig.getDockerVersion())
 
         """
-def agent =  {
+def k8s = {
     kubernetes {
       defaultContainer 'jnlp'
       yaml '''
@@ -52,7 +52,7 @@ pipeline {
   agent none
   stages {
     stage('Debug1') {
-      agent agent
+      agent k8s
       steps {
         container("dind") {
           container("docker") {
