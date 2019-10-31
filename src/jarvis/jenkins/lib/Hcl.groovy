@@ -99,7 +99,7 @@ class Hcl implements Serializable {
                 resources.each { name, it ->
                     it.body.setDelegate(it.config)
                     //noinspection UnnecessaryQualifiedReference
-                    it.body.getThisObject().setResolveStrategy(Closure.DELEGATE_ONLY)
+                    it.body.setResolveStrategy(Closure.DELEGATE_ONLY)
                     outputs.each { key, value ->
                         it.config.metaClass."${key}" = value
                     }
