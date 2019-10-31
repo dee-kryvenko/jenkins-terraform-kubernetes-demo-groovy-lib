@@ -43,12 +43,12 @@ class Hcl implements Serializable {
         }
 
         AbstractConfig config = findClass('config', resource, type)
-        Closure bodyClone = body.dehydrate()
-        bodyClone.setDelegate(config)
-        bodyClone.setResolveStrategy(Closure.DELEGATE_FIRST)
+        Closure bodyClone = body.dehydrate().rehydrate(config, config, config)
+//        bodyClone.setDelegate(config)
+//        bodyClone.setResolveStrategy(Closure.DELEGATE_FIRST)
         hcl.each { key, value ->
             context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
-            bodyClone.setProperty(key, new HashMap(value))
+            bodyClone.setProperty(key, value)
         }
         bodyClone.call()
 
