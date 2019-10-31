@@ -25,12 +25,6 @@ class Hcl implements Serializable {
         Closure body
         AbstractConfig config
         AbstractOutput output
-
-        @Override
-        @NonCPS
-        String toString() {
-            return "body:${body.toString()}, config:${config.toString()}, output:${output.toString()}"
-        }
     }
 
     private final Map<String, Map<String, Map<String, Resource>>> hcl = [:]
@@ -77,7 +71,6 @@ class Hcl implements Serializable {
         Map<String, Map<String, Map<String, AbstractOutput>>> outputs = hcl.collectEntries { kind, types ->
             [(kind): types.collectEntries { type, resources ->
                 [(type): resources.collectEntries { name, it ->
-                    context.steps.echo "${kind}.${type}.${name} = ${it}"
                     [(name): it.output]
                 }]
             }]
@@ -86,8 +79,6 @@ class Hcl implements Serializable {
         hcl.each { kind, types ->
             types.each { type, resources ->
                 resources.each { name, it ->
-                    context.steps.echo "${kind}.${type}.${name} = ${it}"
-
                     it.body.setDelegate(it.config)
                     //noinspection UnnecessaryQualifiedReference
                     it.body.setResolveStrategy(Closure.DELEGATE_ONLY)
