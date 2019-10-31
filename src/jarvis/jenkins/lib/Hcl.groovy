@@ -27,6 +27,7 @@ class Hcl implements Serializable {
         AbstractOutput output
 
         @Override
+        @NonCPS
         String toString() {
             return "body:${body.toString()}, config:${config.toString()}, output:${output.toString()}"
         }
