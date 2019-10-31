@@ -53,8 +53,7 @@ class Hcl implements Serializable {
         try {
             hcl.each { key, value ->
                 context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
-                context.steps.echo proxy.class.name
-                proxy.metaClass."${key}" = value
+                proxy.metaClass.setAttribute(key, value)
             }
         } catch (Throwable e) {
             context.steps.echo ">>> ${e.getMessage()}"
