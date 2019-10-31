@@ -31,7 +31,7 @@ enum DockerImages implements Serializable {
     private String yaml
 
     DockerImages(String yaml) {
-        this.yaml = yaml
+        this.yaml = yaml.trim()
     }
 
     @NonCPS
