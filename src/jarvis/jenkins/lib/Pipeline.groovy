@@ -19,9 +19,7 @@ class Pipeline implements Serializable {
 pipeline {
   agent none
   stages {
-<%= stages.each { %>
-<% out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') %>
-<%= } %>
+<% stages.each { out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') } %>
   }
 }
 '''
@@ -30,9 +28,7 @@ pipeline {
 stage("${stageName}") {
   agent ${agent}
   steps {
-<%= steps.each { %>
-<% out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') %>
-<%= } %>
+<% steps.each { out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') } %>
   }
 }
 '''
@@ -44,9 +40,7 @@ stage("${stageName}") {
       kind: Pod
       spec:
         containers:
-<%= containers.each { %>
-  <% out.print it.readLines().collect { line -> "        ${line}" }.join('\\n') %>
-<%= } %>
+<% containers.each { out.print it.readLines().collect { line -> "        ${line}" }.join('\\n') } %>
 '''
 
         List<String> testingContainers = []
