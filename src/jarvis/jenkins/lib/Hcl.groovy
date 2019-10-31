@@ -22,12 +22,37 @@ class Hcl implements Serializable {
     private final def context
 
     class Resource {
-        Closure body
-        AbstractConfig config
-        AbstractOutput output
+        Resource(Closure body, String resource, String type) {
+            this.body = body
+            this.config = findClass('config', resource, type)
+            this.output = findClass('output', resource, type)
+            this.output.wrap(this.config)
+            this.resource = findClass(resource, type, this.config, this.output)
+        }
+
+        private Closure body
+        private AbstractConfig config
+        private AbstractOutput output
+        private AbstractResource resource
+
+        Closure getBody() {
+            return body
+        }
+
+        AbstractConfig getConfig() {
+            return config
+        }
+
+        AbstractOutput getOutput() {
+            return output
+        }
+
+        AbstractResource getResource() {
+            return resource
+        }
     }
 
-    private final Map<String, Map<String, Map<String, Resource>>> hcl = [:]
+    private final SortedMap<String, SortedMap<String, SortedMap<String, Resource>>> hcl = new TreeMap<>()
 
     Hcl(context) {
         this.context = context
@@ -35,31 +60,24 @@ class Hcl implements Serializable {
 
     def add(String resource, String type, String name, Closure body) {
         if (!hcl.containsKey(resource)) {
-            hcl.put(resource, [:])
+            hcl.put(resource, new TreeMap<>())
         }
 
-        Map<String, Map<String, Resource>> types = hcl[resource]
+        SortedMap<String, SortedMap<String, Resource>> types = hcl[resource]
         if (!types.containsKey(type)) {
-            types.put(type, [:])
+            types.put(type, new TreeMap<>())
         }
 
-        Map<String, Resource> resources = types[type]
+        SortedMap<String, Resource> resources = types[type]
         if (resources.containsKey(name)) {
             throw new RuntimeException("${resource}.${type}.${name} already defined")
         }
 
-        Resource it = new Resource()
-        it.body = body
-        AbstractConfig config = findClass('config', resource, type)
-        it.config = config
-        AbstractOutput output = findClass('output', resource, type)
-        output.wrap(config)
-        it.output = output
-        resources.put(name, it)
+        resources.put(name, new Resource(body, resource, type))
     }
 
     @NonCPS
-    private static <T extends Object> T findClass(String kind, String resource, String type, Object... args) {
+    private static <T extends Object> T findClass(String kind = "", String resource, String type, Object... args) {
         String[] split = type.split('_')
         String clazz = "${Hcl.class.getPackage().getName()}.${resource}.${split.join('.')}"
         clazz = "${clazz}.${split.collect() { it.capitalize() }.join()}${resource.capitalize()}${kind.capitalize()}"
@@ -68,7 +86,7 @@ class Hcl implements Serializable {
 
     def done() {
         //noinspection GroovyAssignabilityCheck
-        Map<String, Map<String, Map<String, AbstractOutput>>> outputs = hcl.collectEntries { kind, types ->
+        SortedMap<String, SortedMap<String, SortedMap<String, AbstractOutput>>> outputs = hcl.collectEntries { kind, types ->
             [(kind): types.collectEntries { type, resources ->
                 [(type): resources.collectEntries { name, it ->
                     [(name): it.output]
