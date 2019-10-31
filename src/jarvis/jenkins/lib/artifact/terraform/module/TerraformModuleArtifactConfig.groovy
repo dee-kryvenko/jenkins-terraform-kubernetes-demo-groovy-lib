@@ -1,7 +1,7 @@
-package jarvis.jenkins.lib.config.artifact.terraform.module
+package jarvis.jenkins.lib.artifact.terraform.module
 
 import com.cloudbees.groovy.cps.NonCPS
-import jarvis.jenkins.lib.config.AbstractConfig
+import jarvis.jenkins.lib.AbstractConfig
 
 class TerraformModuleArtifactConfig extends AbstractConfig implements Serializable {
     private String jarvisTfVersion

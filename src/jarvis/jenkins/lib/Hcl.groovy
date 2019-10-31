@@ -1,9 +1,8 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
-import jarvis.jenkins.lib.config.AbstractConfig
-import jarvis.jenkins.lib.config.artifact.docker.DockerArtifactConfig
-import jarvis.jenkins.lib.config.deployment.terraform.TerraformDeploymentConfig
+import jarvis.jenkins.lib.artifact.docker.DockerArtifactConfig
+import jarvis.jenkins.lib.deployment.terraform.TerraformDeploymentConfig
 
 class Hcl implements Serializable {
     private static class HclHolder implements Serializable {
@@ -21,7 +20,14 @@ class Hcl implements Serializable {
     }
 
     private final def context
-    private final Map<String, Map<String, Map<String, AbstractConfig>>> hcl = [:]
+
+    class Resource {
+        Closure body
+        AbstractConfig config
+        AbstractOutput output
+    }
+
+    private final Map<String, Map<String, Map<String, Resource>>> hcl = [:]
 
     Hcl(context) {
         this.context = context
@@ -32,39 +38,56 @@ class Hcl implements Serializable {
             hcl.put(resource, [:])
         }
 
-        Map<String, Map<String, AbstractConfig>> types = hcl[resource]
+        Map<String, Map<String, Resource>> types = hcl[resource]
         if (!types.containsKey(type)) {
             types.put(type, [:])
         }
 
-        Map<String, AbstractConfig> resources = types[type]
+        Map<String, Resource> resources = types[type]
         if (resources.containsKey(name)) {
             throw new RuntimeException("${resource}.${type}.${name} already defined")
         }
 
+        Resource it = new Resource()
+        it.body = body
         AbstractConfig config = findClass('config', resource, type)
-        body.setDelegate(config)
-        body.setResolveStrategy(Closure.DELEGATE_ONLY)
-        hcl.each { key, value ->
-            config.metaClass."${key}" = value
-        }
-        body.call()
-
-        resources.put(name, config)
+        it.config = config
+        AbstractOutput output = findClass('output', resource, type)
+        it.output = output
+        resources.put(name, it)
     }
 
     @NonCPS
     private static <T extends Object> T findClass(String kind, String resource, String type, Object... args) {
         String[] split = type.split('_')
-        String clazz = "${Hcl.class.getPackage().getName()}.${kind}.${resource}.${split.join('.')}"
+        String clazz = "${Hcl.class.getPackage().getName()}.${resource}.${split.join('.')}"
         clazz = "${clazz}.${split.collect() { it.capitalize() }.join()}${resource.capitalize()}${kind.capitalize()}"
         return (T) Class.forName(clazz).newInstance(args as Object[])
     }
 
     def done() {
-        hcl.artifact.each { type, artifact ->
-            artifact.each { name, config ->
-                context.steps.echo "${type}.${name}.${config.toString()}"
+        Map<String, Map<String, Map<String, AbstractOutput>>> outputs = hcl.each { kind, types ->
+            types.each { type, resources ->
+                resources.each { name, it ->
+                    context.steps.echo "${kind}.${type}.${name} = ${it}"
+
+                    return it.output
+                }
+            }
+        }
+
+        hcl.each { kind, types ->
+            types.each { type, resources ->
+                resources.each { name, it ->
+                    context.steps.echo "${kind}.${type}.${name} = ${it}"
+
+                    it.body.setDelegate(it.config)
+                    it.body.setResolveStrategy(DELEGATE_ONLY)
+                    outputs.each { key, value ->
+                        it.config.metaClass."${key}" = value
+                    }
+                    it.body.call()
+                }
             }
         }
 
