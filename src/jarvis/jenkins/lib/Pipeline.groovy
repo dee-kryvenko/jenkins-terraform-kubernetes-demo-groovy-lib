@@ -70,7 +70,8 @@ spec:
         ]).toString()
         String testingStage = engine.createTemplate(stage).make([
                 stageName: "Testing",
-                agent: testingAgent
+                agent: testingAgent,
+                steps: testingSteps
         ]).toString()
 
         return engine.createTemplate(pipeline).make([
