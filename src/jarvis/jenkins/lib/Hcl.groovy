@@ -51,8 +51,7 @@ class Hcl implements Serializable {
         try {
             hcl.each { key, value ->
                 context.steps.echo "${resource}.${type}.${name} << ${key}: ${value}"
-//            body.setProperty(key, value)
-                config.metaClass.setAttribute(config, key, value)
+                body.setProperty(key, value)
             }
         } catch (Throwable e) {
             context.steps.echo ">>> ${e.getMessage()}"
