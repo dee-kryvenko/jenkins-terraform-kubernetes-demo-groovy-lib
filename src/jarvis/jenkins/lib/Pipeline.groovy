@@ -15,23 +15,26 @@ class Pipeline implements Serializable {
     String getJenkinsfile() {
         GStringTemplateEngine engine = new GStringTemplateEngine()
 
-        String pipeline = '''pipeline {
+        String pipeline = '''
+pipeline {
   agent none
   stages {
 <% stages.each { out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') } %>
   }
 }
-'''
+'''.trim()
 
-        String stage = '''stage("${stageName}") {
+        String stage = '''
+stage("${stageName}") {
   agent ${agent}
   steps {
 <% steps.each { out.print it.readLines().collect { line -> "    ${line}" }.join('\\n') } %>
   }
 }
-'''
+'''.trim()
 
-        String k8s = '''kubernetes {
+        String k8s = '''
+kubernetes {
     defaultContainer "jnlp"
     yaml """
       apiVersion: v1
@@ -39,7 +42,7 @@ class Pipeline implements Serializable {
       spec:
         containers:
 <% containers.each { out.print it.readLines().collect { line -> "        ${line}" }.join('\\n') } %>
-'''
+'''.trim()
 
         List<String> testingContainers = []
         List<String> testingSteps = []
