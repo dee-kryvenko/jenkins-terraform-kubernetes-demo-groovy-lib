@@ -37,16 +37,15 @@ stage("${stageName}") {
 }
 '''
 
-        String k8s = '''
-kubernetes {
-  defaultContainer "jnlp"
-  yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
+        String k8s = '''kubernetes {
+    defaultContainer "jnlp"
+    yaml """
+      apiVersion: v1
+      kind: Pod
+      spec:
+        containers:
 <% containers.each { %>
-  - <% out.print it.readLines().collect { line -> "  ${line}" }.join('\\n') %>
+  <% out.print it.readLines().collect { line -> "        ${line}" }.join('\\n') %>
 <% } %>
 '''
 
@@ -62,7 +61,11 @@ spec:
                             config: config
                     ]).toString()
                 })
-                testingSteps.addAll(artifact.getTestingSteps())
+                testingSteps.addAll(artifact.getTestingSteps().collect() {
+                    engine.createTemplate(it).make([
+                            config: config
+                    ]).toString()
+                })
             }
         }
         String testingAgent = engine.createTemplate(k8s).make([
