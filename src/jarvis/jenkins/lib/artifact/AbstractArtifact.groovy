@@ -7,5 +7,5 @@ abstract class AbstractArtifact extends AbstractResource implements Serializable
         super(config, output)
     }
 
-    abstract List<String> getTestingSteps()
+    abstract String getTestingSteps()
 }

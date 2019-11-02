@@ -12,6 +12,6 @@ enum Container implements Serializable {
 
     @NonCPS
     String getTemplate() {
-        return JenkinsContext.it().getContainer(this)
+        return JenkinsContext.it().getTemplate("util/containers/${this.name().toLowerCase()}.template")
     }
 }

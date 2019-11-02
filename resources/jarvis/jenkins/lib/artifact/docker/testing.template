@@ -1,0 +1,5 @@
+container("dind-artifact-docker-${config.name}") {
+  container("docker-artifact-docker-${config.name}") {
+    sh "docker ps"
+  }
+}

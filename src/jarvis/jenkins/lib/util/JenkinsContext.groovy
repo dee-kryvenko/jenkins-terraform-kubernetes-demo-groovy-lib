@@ -41,16 +41,6 @@ class JenkinsContext implements Serializable {
         return this.getSteps().libraryResource("${Hcl.class.getPackage().getName().replaceAll('\\.', '/')}/${path}")
     }
 
-    @NonCPS
-    String getTemplate(Template template) {
-        return this.getTemplate(template.getPath())
-    }
-
-    @NonCPS
-    String getContainer(Container container) {
-        return this.getTemplate("util/containers/${container.name().toLowerCase()}.template")
-    }
-
     void evaluate(String dsl) {
         this.echo(dsl)
         this.getContext().evaluate(dsl)

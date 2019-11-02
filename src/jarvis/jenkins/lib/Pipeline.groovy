@@ -3,7 +3,6 @@ package jarvis.jenkins.lib
 import jarvis.jenkins.lib.artifact.AbstractArtifact
 import jarvis.jenkins.lib.artifact.AbstractArtifactConfig
 import jarvis.jenkins.lib.util.Container
-import jarvis.jenkins.lib.util.JenkinsContext
 import jarvis.jenkins.lib.util.Template
 import jarvis.jenkins.lib.util.TemplateEngine
 
@@ -15,10 +14,10 @@ class Pipeline implements Serializable {
     }
 
     String getJenkinsFile() {
-        String pipeline = JenkinsContext.it().getTemplate(Template.PIPELINE)
-        String stage = JenkinsContext.it().getTemplate(Template.STAGE)
-        String k8sAgent = JenkinsContext.it().getTemplate(Template.K8S_AGENT)
-        String pod = JenkinsContext.it().getTemplate(Template.POD)
+        String pipeline = Template.PIPELINE.getTemplate()
+        String stage = Template.STAGE.getTemplate()
+        String k8sAgent = Template.K8S_AGENT.getTemplate()
+        String pod = Template.POD.getTemplate()
 
         List<String> testingContainers = []
         List<String> testingSteps = []
@@ -30,11 +29,9 @@ class Pipeline implements Serializable {
                         key: "artifact-${type}-${name}",
                         config: config
                 ])
-                testingSteps.addAll(artifact.getTestingSteps().collect() {
-                    TemplateEngine.render(it, [
-                            config: config
-                    ])
-                })
+                testingSteps << TemplateEngine.render(artifact.getTestingSteps(), [
+                        config: config
+                ])
             }
         }
         String testingPod = TemplateEngine.render(pod, [
