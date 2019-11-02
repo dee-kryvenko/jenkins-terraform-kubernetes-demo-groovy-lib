@@ -2,7 +2,7 @@ package jarvis.jenkins.lib.artifact.docker
 
 import com.cloudbees.groovy.cps.NonCPS
 import jarvis.jenkins.lib.artifact.AbstractArtifact
-import jarvis.jenkins.lib.util.DockerImages
+import jarvis.jenkins.lib.util.Container
 
 class DockerArtifact extends AbstractArtifact implements Serializable {
     DockerArtifact(DockerArtifactConfig config, DockerArtifactOutput output) {
@@ -10,8 +10,8 @@ class DockerArtifact extends AbstractArtifact implements Serializable {
     }
 
     @NonCPS
-    List<DockerImages> getPipelineImages() {
-        return super.getPipelineImages() + [DockerImages.DIND, DockerImages.DOCKER]
+    List<Container> getPipelineImages() {
+        return super.getPipelineImages() + [Container.DIND, Container.DOCKER]
     }
 
     @Override

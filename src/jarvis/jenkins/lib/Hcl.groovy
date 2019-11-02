@@ -108,6 +108,6 @@ class Hcl implements Serializable {
             }
         }
 
-        JenkinsContext.it().evaluate(new Pipeline(hcl).getJenkinsfile())
+        JenkinsContext.it().evaluate(new Pipeline(hcl).getJenkinsFile())
     }
 }

@@ -1,6 +1,7 @@
 package jarvis.jenkins.lib.util
 
 import com.cloudbees.groovy.cps.NonCPS
+import jarvis.jenkins.lib.Hcl
 
 class JenkinsContext implements Serializable {
     private static class VarHolder implements Serializable {
@@ -33,6 +34,21 @@ class JenkinsContext implements Serializable {
     @NonCPS
     void echo(Object msg) {
         this.getSteps().echo(msg.toString())
+    }
+
+    @NonCPS
+    String getTemplate(String path) {
+        return this.getSteps().libraryResource("${Hcl.class.getPackage().getName().replaceAll('\\.', '/')}/${path}")
+    }
+
+    @NonCPS
+    String getTemplate(Template template) {
+        return this.getTemplate(template.getPath())
+    }
+
+    @NonCPS
+    String getContainer(Container container) {
+        return this.getTemplate("util/container/${container.name().toLowerCase()}")
     }
 
     void evaluate(String dsl) {

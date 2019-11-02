@@ -1,0 +1,7 @@
+- name: dind-${key}
+  image: "docker:${config.dockerVersion}-dind"
+  securityContext:
+    privileged: true
+  env:
+  - name: DOCKER_TLS_CERTDIR
+    value: ""

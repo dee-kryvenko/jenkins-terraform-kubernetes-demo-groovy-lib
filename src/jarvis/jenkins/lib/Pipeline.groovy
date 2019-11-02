@@ -1,9 +1,11 @@
 package jarvis.jenkins.lib
 
-import groovy.text.GStringTemplateEngine
 import jarvis.jenkins.lib.artifact.AbstractArtifact
 import jarvis.jenkins.lib.artifact.AbstractArtifactConfig
-import jarvis.jenkins.lib.util.DockerImages
+import jarvis.jenkins.lib.util.Container
+import jarvis.jenkins.lib.util.JenkinsContext
+import jarvis.jenkins.lib.util.Template
+import jarvis.jenkins.lib.util.TemplateEngine
 
 class Pipeline implements Serializable {
     private SortedMap<String, SortedMap<String, SortedMap<String, Hcl.Resource>>> resources = new TreeMap<>()
@@ -12,41 +14,11 @@ class Pipeline implements Serializable {
         this.resources = resources
     }
 
-    String getJenkinsfile() {
-        GStringTemplateEngine engine = new GStringTemplateEngine()
-
-        String pipeline = '''
-pipeline {
-  agent none
-  stages {
-<% out.print stages.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
-  }
-}
-'''.trim()
-
-        String stage = '''
-stage("${stageName}") {
-  agent {
-<% out.print agent.readLines().collect { line -> "    ${line}" }.join('\\n') %>
-  }
-  steps {
-<% out.print steps.join('\\n').readLines().collect { line -> "    ${line}" }.join('\\n') %>
-  }
-}
-'''.trim()
-
-        String k8s = '''
-kubernetes {
-    defaultContainer "jnlp"
-    yaml """
-      apiVersion: v1
-      kind: Pod
-      spec:
-        containers:
-<% out.print containers.join('\\n').readLines().collect { line -> "        ${line}" }.join('\\n') %>
-    """
-}
-'''.trim()
+    String getJenkinsFile() {
+        String pipeline = JenkinsContext.it().getTemplate(Template.PIPELINE)
+        String stage = JenkinsContext.it().getTemplate(Template.STAGE)
+        String k8sAgent = JenkinsContext.it().getTemplate(Template.K8S_AGENT)
+        String pod = JenkinsContext.it().getTemplate(Template.POD)
 
         List<String> testingContainers = []
         List<String> testingSteps = []
@@ -54,29 +26,31 @@ kubernetes {
             resources.each { String name, Hcl.Resource resource ->
                 AbstractArtifact artifact = resource.resource as AbstractArtifact
                 AbstractArtifactConfig config = resource.config as AbstractArtifactConfig
-                artifact.getPipelineImages().collect() { it.getYaml() }.join('\\n')
-                testingContainers << engine.createTemplate(artifact.getPipelineImages().collect() { it.getYaml() }.join('\\n')).make([
+                testingContainers << TemplateEngine.render(artifact.getPipelineImages().collect() { it.getTemplate() }.join('\\n'), [
                         key: "artifact-${type}-${name}",
                         config: config
-                ]).toString()
+                ])
                 testingSteps.addAll(artifact.getTestingSteps().collect() {
-                    engine.createTemplate(it).make([
+                    TemplateEngine.render(it, [
                             config: config
-                    ]).toString()
+                    ])
                 })
             }
         }
-        String testingAgent = engine.createTemplate(k8s).make([
-                containers: [DockerImages.JNLP.getYaml()] + testingContainers
-        ]).toString()
-        String testingStage = engine.createTemplate(stage).make([
+        String testingPod = TemplateEngine.render(pod, [
+                containers: [Container.JNLP.getTemplate()] + testingContainers
+        ])
+        String testingAgent = TemplateEngine.render(k8sAgent, [
+                pod: testingPod
+        ])
+        String testingStage = TemplateEngine.render(stage, [
                 stageName: "Testing",
                 agent: testingAgent,
                 steps: testingSteps
-        ]).toString()
+        ])
 
-        return engine.createTemplate(pipeline).make([
+        return TemplateEngine.render(pipeline, [
                 stages: [testingStage]
-        ]).toString()
+        ])
     }
 }

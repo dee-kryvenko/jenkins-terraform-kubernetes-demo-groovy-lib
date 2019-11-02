@@ -1,7 +1,7 @@
 package jarvis.jenkins.lib
 
 import com.cloudbees.groovy.cps.NonCPS
-import jarvis.jenkins.lib.util.DockerImages
+import jarvis.jenkins.lib.util.Container
 
 abstract class AbstractResource implements Serializable {
     private AbstractConfig config
@@ -13,7 +13,7 @@ abstract class AbstractResource implements Serializable {
     }
 
     @NonCPS
-    List<DockerImages> getPipelineImages() {
+    List<Container> getPipelineImages() {
         return []
     }
 }

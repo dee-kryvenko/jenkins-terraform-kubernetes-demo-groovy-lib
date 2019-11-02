@@ -1,0 +1,6 @@
+pipeline {
+  agent none
+  stages {
+<% out.print stages.join('\n').readLines().collect { line -> "    ${line}" }.join('\n') %>
+  }
+}

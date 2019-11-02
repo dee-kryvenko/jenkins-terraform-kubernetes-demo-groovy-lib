@@ -1,0 +1,6 @@
+kubernetes {
+  defaultContainer "jnlp"
+  yaml """
+<% out.print pod.readLines().collect { line -> "    ${line}" }.join('\n') %>
+"""
+}
