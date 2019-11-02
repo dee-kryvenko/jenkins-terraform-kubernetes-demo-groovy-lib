@@ -48,7 +48,7 @@ class JenkinsContext implements Serializable {
 
     @NonCPS
     String getContainer(Container container) {
-        return this.getTemplate("util/container/${container.name().toLowerCase()}")
+        return this.getTemplate("util/container/${container.name().toLowerCase()}.template")
     }
 
     void evaluate(String dsl) {
